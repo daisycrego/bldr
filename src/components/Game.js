@@ -525,7 +525,6 @@ class Game extends React.Component {
 		switch(view) {
 			case null: 
 				return null;
-				break;
 			case viewOptions.poemBuilder:
 				return (
 					<>
@@ -581,7 +580,7 @@ class Game extends React.Component {
 					</>
 				);
 				break;
-			case viewOptions.myPoems:
+			case viewOptions.history:
 				break;
 			case viewOptions.myWords:
 				break;
