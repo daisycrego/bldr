@@ -36,11 +36,9 @@ app.use(function(req, res, next) {
 	next(createError(404));
 });
 
-/*
 app.get('/', function (req, res) {
 	res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
-*/
 
 // error handler
 app.use(function(err, req, res, next) {
