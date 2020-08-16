@@ -5,11 +5,12 @@
   "dependencies": {
     "cors": "^2.8.5",
     "mongoose": "^5.10.0",
+    "nodemon": "^2.0.4",
     "react-scripts": "3.4.1"
   },
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "nodemon server.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
