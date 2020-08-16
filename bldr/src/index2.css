@@ -1,0 +1,183 @@
+{
+	cursor: text;
+}
+
+body {
+	font-family: Arial, Verdana, sans-serif;
+	font-size: 36px;
+	font-weight: bold;
+	color: #031e4a; /* navy blue */
+	margin: 20px;
+	background-color: #D2B48C; /* tan */
+	/*position: fixed;*/
+}
+
+button {
+	background-color: white;
+	color: black;
+	font-family: Arial, Verdana, sans-serif;
+	font-size: 24px;
+	margin: 0px;
+	height: auto;
+	width: auto;
+}
+
+button.cancel {
+	background-color: #E6FF00;
+}
+
+button.continue {
+	background-color: #00D6EF;
+}
+
+button.recycle {
+	background-color: #16847F;
+}
+
+div.rightshift > button {
+	float:right;
+}
+
+textarea {
+	font-family: Arial, Verdana, sans-serif;
+	color: #031e4a; /* navy blue */
+	background-color: #D2B48C; /* tan */
+	width: 70%;
+	font-size: 32px;
+	font-weight: bold;
+	height: 40px;
+	border-top: 0px;
+	border-left: 0px;
+	border-right: 0px;
+	border-bottom: 10px;
+	border-color: #465F6F; /*#D2B48C*/
+	resize: none;
+}
+
+.currentWordSyllables {
+	width: fit-content;
+	display: inline-block;
+}
+
+.inline-block {
+	display: inline-block;
+}
+
+.inline-flex {
+	display: inline-flex;
+}
+
+.underline {
+	text-decoration: underline;
+}
+
+.asterisk {
+	outline: none;
+	background-color: #D2B48C; /* tan */
+	color: #031e4a; /* navy blue */
+	border-color: #D2B48C; /* tan */
+	width: auto;
+	height: 48px;
+	
+}
+
+textarea.autoresize {
+	resize: none;
+	display: block; 
+	overflow: hidden;
+}
+
+textarea:focus {
+	outline: none;
+}
+
+.currentWord {
+	font-size: 48px;
+	height: auto;
+	outline: dashed;
+	width: 80%;
+}
+
+.currentWordDisplay {
+	width: fit-content;
+}
+
+/*
+.currentWord:focus {
+	outline: dashed;
+}
+*/
+
+div.inline-flex {
+	width: fit-content;
+	display: inline-flex;
+}
+
+.poem {
+	width: 80%;
+	display: inline-flex;
+}
+
+.poemContents {
+	width: 80%;
+}
+
+.history {
+	width: auto; 
+	display: inline-flex;
+}
+
+.poemHistoryButton {
+	height: 30%; 
+	width: fit-content; 
+	background-color: #344C5C; 
+	color: white; 
+}
+
+.divider {
+	border-color: #031e4a; /* navy blue */
+}
+
+.title {
+	color: #757575;
+	/*text-decoration: underline; */
+}
+
+.title-perm {
+	color: #031e4a;
+}
+
+.originalWord {
+	outline: dotted; 
+	font-size: 24px;
+	width: auto;
+}
+
+.currentDefinition {
+	font-size: 28px;
+	height: auto;
+	resize: auto;
+}
+
+.counter {
+	width: 20%;
+	font-size: 24px;
+}
+
+.line {
+	/* use a flex container to display all children in a row*/
+	display:flex;
+	flex-direction:row;
+}
+
+ol, ul {
+	padding-left: 30px;
+}
+
+.valid {
+	color: #034C02;
+}
+
+.invalid {
+	color: #800101;
+}
