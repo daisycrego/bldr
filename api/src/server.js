@@ -56,10 +56,6 @@ app.get('/', function (req, res) {
 	res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
-let port = process.env.PORT;
-if (port == null || port == "") {
-	port = 8080;
-}
-app.listen(port);
+.listen(process.env.PORT || 5000);
 
 module.exports = app;
