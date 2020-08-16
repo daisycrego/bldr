@@ -9,7 +9,6 @@ const PoemBuilder = (props) => {
 	if (!poem) { return null; }
 	const lines = poem.activeEdit ? poem.activeEdit : poem.lines;
 	console.log(`PoemBuilder: lines: ${lines}`);
-	const map = props.map;
 	const valid = poem.valid;
 	
 	return (

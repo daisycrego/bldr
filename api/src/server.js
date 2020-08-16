@@ -45,7 +45,7 @@ app.use(function(err, req, res, next) {
 
 	// render the error page
 	res.status(err.status || 500);
-	res.send('error');
+	res.send(`error: ${JSON.stringify(res)}`);
 });
 
 app.get('/ping', function (req, res) {
