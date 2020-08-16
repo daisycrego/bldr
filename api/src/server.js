@@ -5,10 +5,10 @@ const wordAPIrouter = require('../routes/wordAPI');
 const cors = require('cors');
 const app = express();
 const http = require('http');
+const mongoose = require('mongoose');
 
 app.set('view engine', 'html');
 
-const mongoose = require("mongoose");
 const dbPath =
 	"mongodb+srv://admin:admin@buildercluster.tafza.mongodb.net/builder?retryWrites=true&w=majority";
 mongoose.connect(dbPath, {
