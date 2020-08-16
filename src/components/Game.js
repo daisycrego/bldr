@@ -413,7 +413,7 @@ class Game extends React.Component {
 	
 	lookupWord = (text, next, ...nextArgs) => {
 		if (!text && !next) { console.log(`lookupWord --> word: ${text}`); return null; }
-		var url = `http://localhost:8080/wordAPI/${text}`;
+		var url = `http://localhost:5000/wordAPI/${text}`;
 		fetch(url)
 			.then(res => res.json())
 			.then(res => {
