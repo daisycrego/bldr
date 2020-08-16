@@ -29,13 +29,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'build')));
 
-
 app.use('/wordAPI', wordAPIrouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
 	next(createError(404));
 });
+
+/*
+app.get('/', function (req, res) {
+	res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+*/
+
+app.listen(process.env.PORT || 5000);
 
 // error handler
 app.use(function(err, req, res, next) {
@@ -45,17 +52,7 @@ app.use(function(err, req, res, next) {
 
 	// render the error page
 	res.status(err.status || 500);
-	res.send(`error: ${JSON.stringify(res)}`);
+	res.send(`error`);
 });
-
-app.get('/ping', function (req, res) {
- return res.send('pong');
-});
-
-app.get('/', function (req, res) {
-	res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
-
-app.listen(process.env.PORT || 5000);
 
 module.exports = app;
