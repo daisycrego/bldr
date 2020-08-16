@@ -42,8 +42,6 @@ app.get('/', function (req, res) {
 });
 */
 
-app.listen(process.env.PORT || 5000);
-
 // error handler
 app.use(function(err, req, res, next) {
 	// set locals, only providing error in development
@@ -54,5 +52,7 @@ app.use(function(err, req, res, next) {
 	res.status(err.status || 500);
 	res.send(`error`);
 });
+
+app.listen(process.env.PORT || 5000);
 
 module.exports = app;

@@ -515,12 +515,10 @@ class Game extends React.Component {
 	};
 	
 	renderSwitch(view) {
-		let displayStartButton = true;
 		
 		let poem = {}; 
 		if (this.state.history) {
 			poem = [...this.state.history][this.state.currentPoemIndex];
-			displayStartButton = false
 		} 
 		const viewOptions = this.state.views;
 

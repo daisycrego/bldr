@@ -1,12 +1,10 @@
 import React from 'react'; 
-import Button from './Button';
 import MiniPoem from './MiniPoem';
 
 const History = (props) => {
 	if (!props.history || !props.history.length) {
 		return null;
 	}
-	const buttonText = `${props.history.length ? 'Save & ' : '' } Start New Poem`;
 	const poem = [...props.history][props.currentPoemIndex];
 	const valid = poem ? poem.valid : false;
 
