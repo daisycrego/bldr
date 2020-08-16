@@ -4,6 +4,10 @@ import History from './History';
 import Button from './Button';
 import NavBar from './NavBar';
 
+const production  = 'https://https://poem-builder.herokuapp.com';
+const development = 'http://localhost:3001/';
+const url_base = (process.env.NODE_ENV ? production : development);
+
 class Game extends React.Component {
 	constructor(props) {
 		super(props);
@@ -413,7 +417,8 @@ class Game extends React.Component {
 	
 	lookupWord = (text, next, ...nextArgs) => {
 		if (!text && !next) { console.log(`lookupWord --> word: ${text}`); return null; }
-		var url = `http://localhost:5000/wordAPI/${text}`;
+		if (process.env.)
+		var url = `${url_base}/wordAPI/${text}`;
 		fetch(url)
 			.then(res => res.json())
 			.then(res => {
