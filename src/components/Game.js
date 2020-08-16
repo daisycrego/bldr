@@ -422,6 +422,7 @@ class Game extends React.Component {
 		fetch(url)
 			.then(res => res.json())
 			.then(res => {
+				console.log(`response with word data: ${text}, ${JSON.stringify(res)}`);
 				const word = {
 					text: text,
 					definition: res.definition,
