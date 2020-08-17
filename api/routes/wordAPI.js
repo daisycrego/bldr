@@ -53,7 +53,6 @@ router.get('/:word', function(request, response, next) {
 			// Word already exists, return the word that already exists.
 			return response.send(results);
 		} else {
-
 			// https://www.datamuse.com/api/
 			var url = util.format('http://api.datamuse.com/words?sp=%s&md=ds', request.params.word);
 			fetch(url)
@@ -81,7 +80,6 @@ router.get('/:word', function(request, response, next) {
 				});	
 			})
 			.catch(err => next(err));
-
 		}
 	});
 });

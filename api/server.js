@@ -28,10 +28,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '..', 'build')));
+app.use('/wordAPI', wordAPIrouter);
 app.use((req, res, next) => {
 	res.sendFile(path.join(__dirname, "..", "build", "index.html"));
-app.use('/wordAPI', wordAPIrouter);
-
 });
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
