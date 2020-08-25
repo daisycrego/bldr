@@ -15,7 +15,7 @@ const NavBar = (props) => {
 				</button>
 			})}
 			{
-				<button disabled> by {userName} </button>
+				<button onClick={() => props.toggleUser()}> by {userName} </button>
 			}
 		</div>
 	);
