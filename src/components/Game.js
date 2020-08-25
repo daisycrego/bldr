@@ -22,7 +22,7 @@ class Game extends React.Component {
 			users: [{"userName": "a", "name": "J"}, {"userName": "b", "name": "D"}],
 			counter: 0,
 			currentLine: 0, 
-			currentPoemIndex: 0, 
+			currentPoem: null, 
 			history: null, 
 			activeView: "poemBuilder", 
 			views: {
@@ -64,17 +64,20 @@ class Game extends React.Component {
 		};
 	};
 
+
+
 	toggleUser = () => {
-
-		const currentUser = this.state.user;
-		const otherUser = this.state.users.findOne((item) => item.userName !== currentUser.userName);
-
-		this.setState({user: otherUser});
+		console.log(`toggleUser`);
+		const nextUser = this.state.users.find(user => user.userName != this.state.user.userName); 
+		this.setState({user: nextUser});
 	};
 
 	async componentWillMount() {
 		console.log(`componentDidMount`);
-		const url = `${url_base}/wordAPI/poem/${this.state.user.userName}`;
+		const user = this.state.user;
+		if (!user) { console.log(`no current user found, returning`); return; }	
+		this.setState({user: user});
+		const url = `${url_base}/wordAPI/poem/${user.userName}`;
 		console.log(url);
 		const response = await fetch(url, {
 			headers: {
@@ -84,12 +87,8 @@ class Game extends React.Component {
 		}).then((response) => response.json())
 		.then((response) => {
 			console.log(response); 
-			this.setState({history: response, counter: response.length});
+			this.setState({history: response, counter: response.length, currentPoem: response[0].id});
 		});		
-	};
-
-	toggleUser = (user_id) => {
-		this.setState({user: user_id});
 	};
 
 	addWordToMap = (word, next) => {
@@ -119,13 +118,13 @@ class Game extends React.Component {
 	};
 
 	getCurrentPoem = () => {
-
-		return [...this.state.history].splice(this.state.currentPoemIndex, 1).find(e=>true);
+		return [...this.state.history].find(poem => poem.id === this.state.currentPoem); 
+		//return [...this.state.history].splice(this.state.currentPoemIndex, 1).find(e=>true);
 	};
 
 	handleTitleChange = (newTitle) => {
 		this.setState({history: this.state.history.map((poem, index) => {
-			if (index === this.state.currentPoemIndex) {
+			if (poem.id === this.state.currentPoem) {
 				return {...poem, title: newTitle}
 			} else {
 				return poem; 
@@ -135,7 +134,7 @@ class Game extends React.Component {
 
 	handleResetPoem = () => {
 		const history = this.state.history.map((item, i) => {
-			if (i === this.state.currentPoemIndex) {
+			if (item.id === this.state.currentPoem) {
 				item.linesEdit = item.lines; 
 			}
 			return item;  
@@ -150,7 +149,7 @@ class Game extends React.Component {
 		
 		// replaces `lines` with `linesEdit`
 		const history = [...this.state.history].map((item, i) => {
-			if (i === this.state.currentPoemIndex) {
+			if (item.id === this.state.currentPoem) {
 				item.lines = item.linesEdit; 
 				return item;
 			} else {
@@ -158,9 +157,11 @@ class Game extends React.Component {
 			}
 		});
 
+		const newPoem = this.createPoem(); 
+
 		this.setState({ 
-			history: [...history, this.createPoem()],
-			currentPoemIndex: history.length,
+			history: [...history, newPoem],
+			currentPoem: newPoem.id,
 		});
 
 		var url = `${url_base}/wordAPI/poem`;		
@@ -258,7 +259,7 @@ class Game extends React.Component {
 		const currentPoem = this.getCurrentPoem(); 
 		let syllableCounts = this.state.syllableCounts; 
 		const history = this.state.history.map((poem, index) => {
-			if (index === this.state.currentPoemIndex) {
+			if (poem.id === this.state.currentPoem) {
 				let currentLines = [...poem.linesEdit];
 				if (!currentLines) { currentLines = this.createLines()}
 				currentLines[lineNumber] = line;
@@ -269,7 +270,7 @@ class Game extends React.Component {
 		});		
 		this.setState({ history: history, syllableCounts: syllableCounts });
 
-		this.validatePoem(currentPoem);		
+		this.validatePoem(this.getCurrentPoem());		
 				
 		// restore cursor position
 		e.target.setSelectionRange(cursorStart, cursorEnd); 
@@ -358,7 +359,7 @@ class Game extends React.Component {
 		const history = [ newPoem ];	 
 		this.setState({ 
 			history: history,
-			currentPoemIndex: (history.length ? history.length-1 : 0),
+			currentPoem: newPoem.id,
 			activeView: this.state.views.poemBuilder.name
 		});
 	};
@@ -398,9 +399,10 @@ class Game extends React.Component {
 		const num = count ? count : this.state.counter;
 		this.incrementCounter();
 		const fullTitle = `${title} ${num}`;
+		const user = this.state.user; 
 		let newPoem = {
-			user: this.state.user.userName,
-			id: `${this.state.user.userName}_${num}`, 
+			user: user ? user.userName : '',
+			id: `${user ? user.userName : ''}_${num}`, 
 			title: fullTitle,
 			lines: this.createLines(),
 			linesEdit: this.createLines(),
@@ -431,7 +433,7 @@ class Game extends React.Component {
 		let valid;
 		let currentPoem;  
 		const history = this.state.history.map((poem, i) => {
-			if (i === this.state.currentPoemIndex){
+			if (poem.id === this.state.currentPoem){
 				currentPoem = this.getCurrentPoem(); 
 				valid = this.validatePoem(poem.linesEdit);
 				return {...currentPoem, valid: valid}
@@ -514,18 +516,14 @@ class Game extends React.Component {
 		}, 0);
 	};
 
-	togglePoemHistory = (index=0) => {
-		if (index === this.state.currentPoemIndex) { return; }
-		const currentPoem = [...this.state.history][this.state.currentPoemIndex];
+	togglePoemHistory = (poemId) => {
+		if (poemId === this.state.currentPoem) { return; }
+		const currentPoem = this.getCurrentPoem();
 		if (!currentPoem) { return null; }
-		//let lines = currentPoem.linesEdit ? currentPoem.linesEdit : currentPoem.lines;
-		//if (!lines) { lines = this.createLines(); }
-		//const newPoem = {...[...this.state.history][this.state.currentPoemIndex], lines: lines};
-		let history = [...this.state.history];
-		history.splice(this.state.currentPoemIndex,1,this.getCurrentPoem());
+	
+		
 		this.setState({
-			history: history,
-			currentPoemIndex: index,
+			currentPoem: poemId,
 		});
 	};
 
@@ -536,14 +534,16 @@ class Game extends React.Component {
 
 		const views = {...this.state.views};
 		const poem = this.getCurrentPoem();
-		if (!poem) { return; }
+		if (!poem) { console.log(`poem: ${JSON.stringify(poem)}, returning`); return; };
 		console.log(`current poem: ${JSON.stringify(poem)}`);
 		let lines = poem.linesEdit ? poem.linesEdit : poem.lines;
 		if (!lines) { lines = this.createLines()} 
 
 		const currentWord = this.state.currentWord ? (this.state.currentWord.activeEdit ? this.state.currentWord.activeEdit.edit : null) : null; 
 		
-		const filteredHistory = this.state.history ? this.state.history.filter((item) => item.user === this.state.user) : null;
+		const user = this.state.user; 
+		const filteredHistory = this.state.history ? this.state.history.filter((item) => { console.log(`item: ${JSON.stringify(item)}`); return item.user === (user ? user.userName : '')}) : null;
+		console.log(`filteredHistory: ${JSON.stringify(filteredHistory)}`);
 
 		switch(view) {
 			case views.poemBuilder.name:
@@ -585,7 +585,7 @@ class Game extends React.Component {
 			case views.history.name:
 				return <History 
 					history={filteredHistory} 
-					currentPoemIndex={this.state.currentPoemIndex} 
+					currentPoem={this.state.currentPoem} 
 					togglePoemHistory={this.togglePoemHistory}
 				/>;
 				break; 
@@ -600,13 +600,16 @@ class Game extends React.Component {
 			};
 		});
 
+		const currentUser = this.state.user;
+		console.log(`currentUser: ${JSON.stringify(this.state.user)}`);  
+
 		return (
 			<Fragment>
 			
 			{this.state.activeView && this.state.history && this.state.history.length?
 				<Fragment>
 					<NavBar
-						userName={this.state.user.userName}
+						userName={currentUser ? currentUser.name : "?"}
 						buttons={buttons}
 						selectedButton={this.state.activeView}
 						displayHistory={this.state.display.history}

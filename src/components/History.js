@@ -5,7 +5,9 @@ const History = (props) => {
 	if (!props.history || !props.history.length) {
 		return null;
 	}
-	const poem = [...props.history][props.currentPoemIndex];
+	const poem = [...props.history].filter(poem => poem.id === props.currentPoem);
+	console.log(`poem: ${JSON.stringify(poem)}`);
+
 	const valid = poem ? poem.valid : false;
 
 	const lines = poem.linesEdit ? {...poem.linesEdit} : poem.lines;
@@ -15,7 +17,7 @@ const History = (props) => {
 				{props.history.length ? 
 				props.history.map((poem, index) => {
 					console.log(`poem: ${JSON.stringify(poem)}`);
-					let isCurrentPoem = (index === props.currentPoemIndex);					
+					let isCurrentPoem = (poem.id === props.currentPoem);					
 					return (
 						<span key={index}>
 							<Fragment>
