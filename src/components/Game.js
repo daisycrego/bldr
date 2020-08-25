@@ -18,8 +18,8 @@ class Game extends React.Component {
 		super(props); 
 
 		this.state = {
-			user: {"user": "a", "name": "A"},
-			users: [{"user": "a", "name": "A"}, {"user": "b", "name": "Admin"}],
+			user: {"user": "a", "name": "J"},
+			users: [{"user": "a", "name": "J"}, {"user": "b", "name": "D"}],
 			counter: 0,
 			currentLine: 0, 
 			currentPoemIndex: 0, 
