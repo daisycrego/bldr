@@ -18,7 +18,7 @@ class Game extends React.Component {
 		super(props); 
 
 		this.state = {
-			user: {"user": "a", "name": "J"},
+			user: {"userName": "a", "name": "J"},
 			users: [{"user": "a", "name": "J"}, {"user": "b", "name": "D"}],
 			counter: 0,
 			currentLine: 0, 
@@ -64,9 +64,17 @@ class Game extends React.Component {
 		};
 	};
 
+	toggleUser = () => {
+
+		const currentUser = this.state.user;
+		const otherUser = this.state.users.findOne((item) => item.userName !== currentUser.userName);
+
+		this.setState({user: otherUser});
+	};
+
 	async componentWillMount() {
 		console.log(`componentDidMount`);
-		const url = `${url_base}/wordAPI/poem/${this.state.user.user}`;
+		const url = `${url_base}/wordAPI/poem/${this.state.user.userName}`;
 		console.log(url);
 		const response = await fetch(url, {
 			headers: {
@@ -391,8 +399,8 @@ class Game extends React.Component {
 		this.incrementCounter();
 		const fullTitle = `${title} ${num}`;
 		let newPoem = {
-			user: this.state.user.user,
-			id: `${this.state.user.user}_${num}`, 
+			user: this.state.user.userName,
+			id: `${this.state.user.userName}_${num}`, 
 			title: fullTitle,
 			lines: this.createLines(),
 			linesEdit: this.createLines(),
@@ -603,6 +611,7 @@ class Game extends React.Component {
 						selectedButton={this.state.activeView}
 						displayHistory={this.state.display.history}
 						handleClick={this.toggleView}
+						toggleUser={this.toggleUser}
 					/>
 					{this.renderViews(this.state.activeView)}
 				</Fragment>
