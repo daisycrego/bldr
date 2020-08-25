@@ -606,7 +606,7 @@ class Game extends React.Component {
 			{this.state.activeView && this.state.history && this.state.history.length?
 				<Fragment>
 					<NavBar
-						userName={this.state.user.name}
+						userName={this.state.user.userName}
 						buttons={buttons}
 						selectedButton={this.state.activeView}
 						displayHistory={this.state.display.history}
