@@ -66,7 +66,7 @@ class Game extends React.Component {
 
 	async componentWillMount() {
 		console.log(`componentDidMount`);
-		const url = `${url_base}/wordAPI/poem/${this.state.user.name}`;
+		const url = `${url_base}/wordAPI/poem/${this.state.user.user}`;
 		console.log(url);
 		const response = await fetch(url, {
 			headers: {
@@ -391,8 +391,8 @@ class Game extends React.Component {
 		this.incrementCounter();
 		const fullTitle = `${title} ${num}`;
 		let newPoem = {
-			user: this.state.user,
-			id: `${this.state.user}_${num}`, 
+			user: this.state.user.user,
+			id: `${this.state.user.user}_${num}`, 
 			title: fullTitle,
 			lines: this.createLines(),
 			linesEdit: this.createLines(),
@@ -598,7 +598,7 @@ class Game extends React.Component {
 			{this.state.activeView && this.state.history && this.state.history.length?
 				<Fragment>
 					<NavBar
-						userName={this.state.user.text}
+						userName={this.state.user.name}
 						buttons={buttons}
 						selectedButton={this.state.activeView}
 						displayHistory={this.state.display.history}
