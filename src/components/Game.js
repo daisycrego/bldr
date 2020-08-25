@@ -19,7 +19,7 @@ class Game extends React.Component {
 
 		this.state = {
 			user: {"userName": "a", "name": "J"},
-			users: [{"user": "a", "name": "J"}, {"user": "b", "name": "D"}],
+			users: [{"userName": "a", "name": "J"}, {"userName": "b", "name": "D"}],
 			counter: 0,
 			currentLine: 0, 
 			currentPoemIndex: 0, 
