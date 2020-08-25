@@ -5,9 +5,7 @@ import Game from './components/Game';
 
 // ========================================
 
-
 ReactDOM.render(
-
-<Game />,
+	<Game/>,
 	document.getElementById('root')
 );

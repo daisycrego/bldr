@@ -1,4 +1,4 @@
-import React from 'react'; 
+import React, { Fragment } from 'react'; 
 import MiniPoem from './MiniPoem';
 
 const History = (props) => {
@@ -8,37 +8,35 @@ const History = (props) => {
 	const poem = [...props.history][props.currentPoemIndex];
 	const valid = poem ? poem.valid : false;
 
-	const lines = poem.activeEdit ? {...poem.activeEdit} : poem.lines;
+	const lines = poem.linesEdit ? {...poem.linesEdit} : poem.lines;
 
 	return (
 		<div className="history">
 				{props.history.length ? 
 				props.history.map((poem, index) => {
+					console.log(`poem: ${JSON.stringify(poem)}`);
 					let isCurrentPoem = (index === props.currentPoemIndex);					
 					return (
 						<span key={index}>
-							<>
+							<Fragment>
 								<button 
 									disabled={isCurrentPoem}
 									className="poemHistoryButton" 
 									key={index} 
 									onClick={(e) => props.togglePoemHistory(index)}>
-								
-									{isCurrentPoem ? 
-										<h4><strong>{poem.title}</strong></h4> 
-									: <h4>{poem.title}</h4>}
+									<h4><strong>{poem.title}</strong></h4>
 									<br/>									
-									<MiniPoem 
-										title={poem.title}
-										lines={lines} 
+									<MiniPoem
+										lines={poem.linesEdit ? poem.linesEdit : poem.lines} 
 										className="miniPoem" 
 										index={index}/>
 									{isCurrentPoem ? <span>*<sub>active poem</sub></span> : null}
 								</button>
-							</>
+							</Fragment>
 						</span>
 					);
-				}) : <div>No poems</div>}
+				}) 
+				: <div>No poems</div>}
 		</div>		
 	);
 		

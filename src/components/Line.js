@@ -18,11 +18,8 @@ const Line = (props) => {
 			onChange={(e) => props.handleLineChange(e, props.index)}
 			onKeyDown={(e) => props.handleKeyDown(e, props.index)}
 			onClick={(e) => props.handleClick(e, props.index)}
-			onInput={(e) => props.autoresize(e)}
 			placeholder={props.placeholderLine}
 			value={props.line ? props.line : ""}
-			onMouseOver={(e) => props.handleMouseover(props.index)}
-			onMouseOut={(e) => props.handleMouseOut(props.index)}
 			/>
 			<h4 className="counter"> {props.syllableCount} / {props.syllableLimit}</h4>
 		</span>

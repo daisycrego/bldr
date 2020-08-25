@@ -3,7 +3,10 @@ var fetch = require('node-fetch');
 var util = require('util');
 var router = express.Router(); 
 var Word = require('../models/Word');
+var Poem = require('../models/Poem');
+const bodyParser = require('body-parser');
 
+var jsonParser = bodyParser.json(); 
 /* 
 To use this API from within React, create a function like this: 
 fetchWordData(word) {
@@ -21,14 +24,41 @@ fetchWordData(word) {
   }
 */
 
+router.get('/poem/:user', function(request, response, next) {
+	console.log(`running the wordAPI -> GET request, fetching a poem by USER`);
+	const user = request.params.user; 
+	console.log(`user: ${user}`);
+	Poem.find({user: user}, function(err, results) {
+		if (err) { next(err); }
+		console.log(results); 
+		if (results) {
+			return response.send(results); 
+		} else {
+			return response.send(null); 
+		}
+	});
+});
+
+router.post('/poem', jsonParser, function(request, response, next) {
+	console.log("wordAPI -> POST request, updating a poem");
+	//console.log(`request: ${JSON.stringify(request)}`);
+	const poem = request.body; 
+	
+	if (!poem) { console.log(`poem: ${JSON.stringify(poem)}`); return; }
+	var query = { 'id': poem.id }; 
+	const newData = { poem: poem };
+
+	Poem.updateOne({'id': poem.id}, poem, { upsert: true }, function(error, doc) {
+		if (error) { next(err); }
+		return response.send('Successfully saved.');
+	});
+});
+
 router.post('/update', function(request, response, next) {
-	console.log("wordAPI -> POST request, updating a word");
-	console.log(`word: ${request.params.word}`);
 	var wordQuery = { word: request.params.word };
 	var newValues = { syllables: request.params.syllables, definition: request.params.definition };
 	Word.updateOne(wordQuery, newValues, function(err, results) {
 		if (err) { return next(err); }
-		console.log(results);
 		if (results) {
 			response.send(results); 
 		}
@@ -37,7 +67,6 @@ router.post('/update', function(request, response, next) {
 });
 
 router.get('/:word', function(request, response, next) {
-	console.log(`running the wordAPI --> GET request`);
 	// check if the word is stored already in the word history cache - if it is, don't bother looking it up
 	// create a word object for the word and assign it to the word history cache - for now, there is 
 	// just one user, but in the future each user will have their own history cache and there
@@ -58,7 +87,6 @@ router.get('/:word', function(request, response, next) {
 			fetch(url)
 			.then(res => res.json())
 			.then(res => {
-				console.log(res);
 				if (res==null || res.length==0){
 					var word = new Word( 
 						{

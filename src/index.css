@@ -13,6 +13,36 @@ body {
 	grid-template-columns: 2fr 1fr;
 }
 
+div.relax {
+	grid-row-start:2;
+	grid-row-end:3;
+	grid-column-start: 1;
+	grid-column-end: 3;
+	display:inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+div.help {
+	grid-row-start:2;
+	grid-row-end:3;
+	grid-column-start: 1;
+	grid-column-end: 3;
+	display:inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+div.relax > img {
+	height: 20em;
+}
+
+textarea.autoresize {
+	resize: none;
+	display: block; 
+	overflow: hidden;
+}
+
 button {
 	font-size: inherit;
 	background-color: #031e4a; /* navy blue */

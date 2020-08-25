@@ -1,6 +1,7 @@
 import React from 'react';
 import Button from './Button';
 import CancelContinueButtons from './CancelContinueButtons';
+import TextareaAutosize from 'react-textarea-autosize';
 
 const CurrentWord = (props) => {	
 	const { currentWord } = props;	
@@ -8,7 +9,7 @@ const CurrentWord = (props) => {
 	const activeEditExists = (currentWord && 'activeEdit' in currentWord && currentWord.activeEdit); 
 	if (!currentWordExists && !activeEditExists) { return null; }
 	const syllableCount = props.currentWord.syllables; 
-	
+
 	return (
 		<>
 			<div className="currentWord">
@@ -41,7 +42,7 @@ const CurrentWord = (props) => {
 				</span>
 			
 			<span className="currentWordSyllables">
-				<textarea 
+				<TextareaAutosize 
 					className="currentWordSyllableCount" 
 					onChange={(e) => props.handleSyllableChange(e)}
 					value={syllableCount}
@@ -56,7 +57,7 @@ const CurrentWord = (props) => {
 			
 			{props.displaySyllableUpdate ? 
 			<CancelContinueButtons 
-				continueText="Update" 
+				continueText="Update syllable count" 
 				cancelText="Cancel" 
 				handleContinue={props.continueSyllableUpdate} 
 				handleCancel={props.cancelSyllableUpdate}
@@ -64,17 +65,16 @@ const CurrentWord = (props) => {
 			: null}
 				
 			{currentWordExists && 'definition' in currentWord ? 
-			<textarea 
+			<TextareaAutosize 
 				className="currentDefinition autoresize" 
 				value={currentWord.definition}
-				onChange={(e) => props.handleDefinitionChange(e)}
-				onInput={(e) => props.autoresize(e)}
+				onChange={(e) => {props.handleDefinitionChange(e)}}
 			/> 
 			: null}
 				
 			{props.displayDefinitionUpdate ? 
 			<CancelContinueButtons
-				continueText="Update"
+				continueText="Update definition"
 				cancelText="Cancel"
 				handleContinue={props.continueDefinitionUpdate}
 				handleCancel={props.cancelDefinitionUpdate}

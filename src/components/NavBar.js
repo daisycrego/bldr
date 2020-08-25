@@ -1,23 +1,16 @@
 import React from 'react'; 
 
 const NavBar = (props) => {
-	const { buttonNames } = props; 
-
-	/*const buttons = [];
-	for(let key in navButtons) {
-		buttons.
-	}
-	*/
+	const { buttons, selectedButton, displayHistory } = props; 
 
 	return (
 		<div className="nav">
-			{Object.keys(buttonNames).map((item, i) => {
+			{buttons.map((item, i) => {
 				return <button 
-					className={item === "history" ? "selected" : null} 
+					className={(item.name === selectedButton || (item.name === "history" && displayHistory)) ? "selected" : null} 
 					key={i} 
-					onClick={(e) => 
-					props.handleClick(item)}>
-					{buttonNames[item]}
+					onClick={() => props.handleClick(item.name)}>
+					{item.text}
 				</button>
 			})}
 		</div>

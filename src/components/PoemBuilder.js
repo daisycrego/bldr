@@ -7,9 +7,14 @@ import Title from './Title';
 const PoemBuilder = (props) => {
 	const poem = props.poem; 
 	if (!poem) { return null; }
-	const lines = poem.activeEdit ? poem.activeEdit : poem.lines;
-	console.log(`PoemBuilder: lines: ${lines}`);
+	const lines = poem.linesEdit ? poem.linesEdit : poem.lines;
+	if (!lines) { console.log(`lines: ${lines}`); return; }
 	const valid = poem.valid;
+	const poemIsEmpty = lines.reduce((entirePoemIsEmpty, currentLine) => {
+		return !currentLine && entirePoemIsEmpty;  
+	}, true);
+
+	
 	
 	return (
 		<>
@@ -22,10 +27,9 @@ const PoemBuilder = (props) => {
 					<Title
 					title={poem ? poem.title : ""}
 					handleTitleChange={props.handleTitleChange}
-					edited={props.titleEdited}
 					/>
 					
-					{ !props.poemIsEmpty ?   					
+					{ !poemIsEmpty ?   					
 							<>
 							<Button
 								handleClick={props.handleSavePoem}
@@ -38,18 +42,15 @@ const PoemBuilder = (props) => {
 					</div>
 
 					<div className="lines">
-						<Lines 
-							handleKeyDown={props.handleKeyDown}
-							handleClick={props.handleClick}
+						<Lines
 							lines={lines} 
 							syllableLimits={props.criteria.syllableLimits}
 							syllableCounts={props.syllableCounts}
 							exampleHaiku={props.criteria.exampleHaiku}
-							autoresize={props.autoresize}
 							currentLine={props.currentLine}
 							handleLineChange={props.handleLineChange}
-							handlePlaceholderMouseover={props.handlePlaceholderMouseover}
-							handlePlaceholderMouseout={props.handlePlaceholderMouseout}
+							handleKeyDown={props.handleKeyDown}
+							handleClick={props.handleClick}
 						/>
 						<hr className="divider"/>
 					</div>
@@ -65,28 +66,29 @@ const PoemBuilder = (props) => {
 			
 			{poem && !props.poemIsEmpty ? 
 				<>
-					{props.valid ? 
+					{valid ? 
 						<div>
 							<h1>This haiku is valid!</h1>
 						</div>			
 					: null}
-	
-					<CurrentWord currentWord={props.currentWord}
-							handleSyllableChange={props.handleSyllableChange}
-							displaySyllableUpdate={props.displaySyllableUpdate}
-							continueSyllableUpdate={props.continueSyllableUpdate}
-							cancelSyllableUpdate={props.cancelSyllableUpdate}
-							autoresize={props.autoresize}
-							handleResetClick={props.handleResetClick}
-							handleCurrentWordChange={props.handleCurrentWordChange}
-							handleDefinitionChange={props.handleDefinitionChange}
-							continueDefinitionUpdate={props.continueDefinitionUpdate}
-							cancelDefinitionUpdate={props.cancelDefinitionUpdate}
-							displayDefinitionUpdate={props.displayDefinitionUpdate}
-							viewOriginalWord={props.viewOriginalWord}
-							displayOriginalWord={props.displayOriginalWord}
-							handleCurrentWordReset={props.handleCurrentWordReset}
-						/> 
+					
+					<CurrentWord 
+						currentWord={props.currentWord}
+						displaySyllableUpdate={props.displaySyllableUpdate}
+						handleSyllableChange={props.handleSyllableChange}
+						continueSyllableUpdate={props.continueSyllableUpdate}
+						cancelSyllableUpdate={props.cancelSyllableUpdate}
+						autoresize={props.autoresize}
+						handleResetClick={props.handleResetClick}
+						handleCurrentWordChange={props.handleCurrentWordChange}
+						handleDefinitionChange={props.handleDefinitionChange}
+						continueDefinitionUpdate={props.continueDefinitionUpdate}
+						cancelDefinitionUpdate={props.cancelDefinitionUpdate}
+						displayDefinitionUpdate={props.displayDefinitionUpdate}
+						viewOriginalWord={props.viewOriginalWord}
+						displayOriginalWord={props.displayOriginalWord}
+						handleCurrentWordReset={props.handleCurrentWordReset}
+					/>
 				</>
 					
 			: null}				

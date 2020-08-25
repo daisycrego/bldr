@@ -13,6 +13,7 @@ const dbPath =
 	"mongodb+srv://admin:admin@buildercluster.tafza.mongodb.net/builder?retryWrites=true&w=majority";
 mongoose.connect(dbPath, {
 	useNewUrlParser: true,
+	useUnifiedTopology: true
 });
 const db = mongoose.connection;
 db.on("error", () => {
@@ -22,13 +23,15 @@ db.once("open", () => {
 	console.log("> successfully opened the database");
 });
 
+
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+//app.use(express.json());
+//app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '..', 'build')));
 app.use('/wordAPI', wordAPIrouter);
+
 app.use((req, res, next) => {
 	res.sendFile(path.join(__dirname, "..", "build", "index.html"));
 });

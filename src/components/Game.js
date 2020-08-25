@@ -1,176 +1,175 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import PoemBuilder from './PoemBuilder';
 import History from './History';
 import Button from './Button';
 import NavBar from './NavBar';
+import WordBank from './WordBank';
+import SelfDestruct from './SelfDestruct';
+import Help from './Help';
 
 const production  = 'https://poem-builder.herokuapp.com';
 const development = 'http://localhost:5000';
-const url_base = (process.env.NODE_ENV ? production : development);
+const url_base = (process.env.REACT_APP_ENVIRONMENT === 'development' ? development : production);
+
+const user_id ="a";
 
 class Game extends React.Component {
 	constructor(props) {
-		super(props);
+		super(props); 
+
 		this.state = {
-			counter: 0, 
-			currentPoemIndex: 0,
-			currentWord: null,
+			user: user_id,
+			users: ["a", "b"],
+			counter: 0,
+			currentLine: 0, 
+			currentPoemIndex: 0, 
+			history: null, 
+			activeView: "poemBuilder", 
+			views: {
+				"poemBuilder": {
+					"name": "poemBuilder",
+					"text": "Current Build"
+				},
+				"wordBank": {
+					"name": "wordBank", 
+					"text": "Word Bank"
+				},
+				"help": {
+					"name": "help", 
+					"text": "Help"
+				}, 
+				"selfDestruct": {
+					"name": "selfDestruct",
+					"text": "Self Destruct"
+				},
+				"history": {
+					"name": "history",
+					"text": "My Poems"
+				},
+			},
+			display: {
+				"history": false, 
+				"syllableUpdate": false,
+				"definitionUpdate": false,
+				"originalWordWarning": false,
+			},
 			criteria: {
 				lineCount: 3,
 				syllableLimits: [5,7,5],
-				placeholders: ["Line 1 uses 5 syllables", "Line 2 uses 7 syllables", "Line 3 uses 5 syllables"],
-				exampleHaiku: ["haikus are easy", "but sometimes they don't make sense", "refrigerator"],
-				exampleHaikuOriginal:["haikus are easy", "but sometimes they don't make sense", "refrigerator"],
-			},		
-			history: null, 
+				example: ["haikus are easy", "but sometimes they don't make sense", "refrigerator"],
+			},
 			map: new Map(), 
-			poemIsEmpty: true,
-			syllableCounts: [0, 0, 0],
-			displayHistory: false,
-			activeView: null,
-			views: {
-				poemBuilder: "poemBuilder",
-				myWords:  "myWords",
-				help:  "help",
-				selfDestruct:  "selfDestruct",
-				history:  "history",
-			},
-			viewNames: {
-				poemBuilder: "Current Build",
-				myWords:  "Word Bank",
-				help:  "Help",
-				selfDestruct:  "Self Destruct",
-				history:  "My Poems",
-			},
+			currentWord: null,
+			syllableCounts: [0,0,0],
 		};
 	};
 
-	toggleView = (view="") => {
-		if (!view || !(view in this.state.views)) { 
-			return; 
-		} 
-		// toggle history on/off
-		else if (view === this.state.views.history) {
-			this.setState({displayHistory: !this.state.displayHistory});
-		}
-		else if (view === this.state.activeView){
-			return;
-		}
-		else {
-			this.setState({activeView: view});
-		}
+	async componentWillMount() {
+		console.log(`componentDidMount`);
+		const url = `${url_base}/wordAPI/poem/${this.state.user}`;
+		console.log(url);
+		const response = await fetch(url, {
+			headers: {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+			}
+		}).then((response) => response.json())
+		.then((response) => {
+			console.log(response); 
+			this.setState({history: response});
+		});		
 	};
-	
-	// checks in map cache for word. cache hit --> 
-	// returns the word object, cache miss -> 
-	// returns null and calls lookupWord before 
-	// updating the map cache
+
+	toggleUser = (user_id) => {
+		this.setState({user: user_id});
+	};
+
 	addWordToMap = (word, next) => {
-		const map = new Map(this.state.map);
+		const map = new Map(this.state.map); 
 		if (map.get(word) !== undefined) {
 			next(map.get(word)); // use cached word
 		} else {
 			// lookup word
 			this.lookupWord(word, (wordObject) => { 
-				this.setState({map: map.set(word, wordObject)}); 
+				this.setState({map: this.state.map.set(word, {...wordObject}) }); 
 				next(wordObject); 
 			});
 		}		
 	};
-	
-	autoresize = (e) => {
-		let input = e.target; 
-		input.style.height = 'auto';
-		input.style.height = input.scrollHeight+'px';
-		input.scrollTop = input.scrollHeight; 
-		window.scrollTo(window.scrollLeft, (input.scrollTop + input.scrollHeight));
-	};
 
-	cancelWarning = (displayWarning, resetSyllables=true, resetDefinition=true) => {
-		if (this.state.currentWord && this.state.currentWord.activeEdit) {
-			this.updateCurrentWord(null, resetSyllables, resetDefinition);
+	toggleView = (view="") => {
+		if (!view || view === this.state.activeView || !(view in this.state.views) ) {
+			return; 
 		}
-		this.setState({displayWarning: false});
+		// toggle history on/off
+		if (view === this.state.views.history.name) {
+			const newDisplay = {...this.state.display, history: !this.state.display.history};
+			this.setState({display: newDisplay});
+			return;
+		}
+		this.setState({activeView: view}); 
 	};
 
-	continueUpdate = (displayWarning, updateSyllables=true, updateDefinition=true) => {
-		if (!this.state.currentWord || !this.state.currentWord.activeEdit) { return; }
-		
-		const currentWord = {...this.state.currentWord};
-		
-		const newSyllableCount = (updateSyllables ? this.state.currentWord.activeEdit.edit.syllables : currentWord.syllables);
-		const newDefinition = (updateDefinition ? this.state.currentWord.activeEdit.edit.definition : currentWord.definition); 
-		
-		const newWord = {...currentWord, syllables: newSyllableCount, definition: newDefinition, original:{...currentWord}, edited: true, activeEdit: false};
-		const map = new Map(this.state.map);
-		map.delete(currentWord.text);
-		map.set(currentWord.text, newWord);
+	getCurrentPoem = () => {
 
-		let valid; 
-		const history = this.state.history.map((poem, i) => {
-			if (i === this.state.currentPoemIndex){
-				valid = this.validatePoem();
-				return {...poem, valid: valid}
-			} else { return poem }; 
+		return [...this.state.history].splice(this.state.currentPoemIndex, 1).find(e=>true);
+	};
+
+	handleTitleChange = (newTitle) => {
+		this.setState({history: this.state.history.map((poem, index) => {
+			if (index === this.state.currentPoemIndex) {
+				return {...poem, title: newTitle}
+			} else {
+				return poem; 
+			}
+		})});
+	};
+
+	handleResetPoem = () => {
+		const history = this.state.history.map((item, i) => {
+			if (i === this.state.currentPoemIndex) {
+				item.linesEdit = item.lines; 
+			}
+			return item;  
 		});
 
-		if (updateSyllables) {
-			this.cancelWarning(this.state.displaySyllableUpdate, true, false); 
-		}
+		this.setState({ history: history });
+	};
 
-		if (updateDefinition) {
-			this.cancelWarning(this.state.displayDefinitionUpdate, false, true);
-		}
-
-		this.updateSyllableCounts();
+	handleSavePoem = () => {
+		const poem = this.getCurrentPoem(); 
+		if (!poem || !poem.lines){ return; }
 		
-		this.setState({
-			map: map,
-			displaySyllableUpdate: false,
-			currentWord: newWord,
-			history: history,
-			valid: valid,
+		// replaces `lines` with `linesEdit`
+		const history = [...this.state.history].map((item, i) => {
+			if (i === this.state.currentPoemIndex) {
+				item.lines = item.linesEdit; 
+				return item;
+			} else {
+				return item;
+			}
 		});
-	};
-	
-	createPoem(count=null, title=`Haiku`){
-		const num = count ? count : this.state.counter;
-		this.incrementCounter();
-		const fullTitle = `${title} ${num}`;
-		let newPoem = {
-			title: fullTitle,
-			lines: Array(3).fill(""),
-			lineCount: 3,
-			type: "haiku",
-			activeEdit: Array(3).fill(""),
-			valid: false,
-		};
-		return newPoem;
-	};
-	
-	createWord(text="", syllables="", definition=""){
-		const word = {
-			text: text,
-			syllables: syllables, 
-			definition: definition,
-			activeEdit: {
-				syllables: false,
-				definition: false,
-				edit: {}
-			},
-			edited: false,
-		};
-		return {...word};
-	};
-	
-	getSyllableCount = (word) => {
-		const map = new Map(this.state.map);
-		const targetWord = map.get(word);
-		if (!targetWord) { return 0; }		
-		return targetWord.syllables; 
-	};
-	
-	handleClick = (e, lineNumber) => {			
+
+		this.setState({ 
+			history: [...history, this.createPoem()],
+			currentPoemIndex: history.length-1,
+		});
+
+		var url = `${url_base}/wordAPI/poem`;		
+		var headers = {'Content-Type': 'application/json'};
+		fetch(url, {
+			method: 'post', 
+			body: JSON.stringify(poem),
+			headers: headers,
+		})
+			.then(res => res.json())
+			.then(res => {
+				console.log(`result of fetch: ${JSON.stringify(res)}`);
+			})
+			.catch(err => err);
+	};	
+
+	handlePoemClick = (e, lineNumber) => {
 		// https://stackoverflow.com/questions/7563169/detect-which-word-has-been-clicked-on-within-a-text
 		var word = '';
 		let selection = window.getSelection().modify;
@@ -207,33 +206,8 @@ class Game extends React.Component {
 		
 		this.setState({currentLine: lineNumber});
 	};
-	
-	handleCreateNewPoem = () => {	
-		const newPoem = {...this.createPoem()}; 
-		let history;
-		if (!this.state.history) { history = [ newPoem ]}
-		else {
-			history = [...this.state.history, newPoem];
-		}
-						 
-		this.setState({ 
-			history: history,
-			currentPoemIndex: (history.length ? history.length-1 : 0),
-			poemIsEmpty: true,
-			activeView: this.state.views.poemBuilder
-		});
-	};
-	
-	handleCurrentWordChange = (e) => {
-		this.updateCurrentWord(e.target.value);
-	};
-	
-	handleCurrentWordReset = () => {
-		this.updateCurrentWord(this.state.currentWord.original.text);
-	};
-	
-	// keycodes: https://keycode.info/
-	handleKeyDown = (e) => {
+
+	handlePoemKeyDown = (e) => {
 		let currentLine; 
 		switch(e.key) {
 			case 'Enter':
@@ -257,8 +231,8 @@ class Game extends React.Component {
 				return;
 		}
 	};
-	
-	handleLineChange = (e, lineNumber) => {		
+
+	handlePoemLineChange = (e, lineNumber) => {		
 		// save original cursor position
 		var cursorStart = e.target.selectionStart,
 			cursorEnd = e.target.selectionEnd;		
@@ -270,196 +244,218 @@ class Game extends React.Component {
 		var words = leftOfCursor.split(" ");
 		var currentWord = words[words.length-1];
 
-		this.updateCurrentWord(currentWord);
+		this.updateCurrentWord(currentWord); // this is completing execution AFTER history has already been calculated
 		
-		let currentPoem = [...this.state.history][this.state.currentPoemIndex];  
-
+		let lines;
+		const currentPoem = this.getCurrentPoem(); 
+		let syllableCounts = this.state.syllableCounts; 
 		const history = this.state.history.map((poem, index) => {
 			if (index === this.state.currentPoemIndex) {
-				let currentLines = [...poem.activeEdit];
-				if (!currentLines) { currentLines = Array(this.state.lineCount).fill("")}
+				let currentLines = [...poem.linesEdit];
+				if (!currentLines) { currentLines = this.createLines()}
 				currentLines[lineNumber] = line;
-				return {...poem, activeEdit: currentLines};
-			} else {
-				return {...poem, activeEdit: null}; 
+				lines = currentLines; 
+				syllableCounts = lines.map(line => this.getSyllableCount(line));
+				return {...poem, linesEdit: currentLines};
 			}
-		});
-		
-		const lines = (currentPoem.activeEdit && currentPoem.activeEdit.length) ? currentPoem.activeEdit : currentPoem.lines; 
+		});		
+		this.setState({ history: history, syllableCounts: syllableCounts });
 
-		this.setState({ 
-			history: history,
-			poemIsEmpty: this.isPoemEmpty(lines)
-		});
-
-		this.validatePoem();		
+		this.validatePoem(currentPoem);		
 				
 		// restore cursor position
 		e.target.setSelectionRange(cursorStart, cursorEnd); 
 	};
-	
-	handlePlaceholderMouseout = (lineNumber) => {
-		if (!this.state.exampleHaiku) { return; }
-		
-		this.setState({
-			exampleHaiku: this.state.exampleHaiku.map((item, i) => 
-				(lineNumber === i) ? this.state.exampleHaikuOriginal[i] : item
-			)
-		});
-	};
-	
-	handlePlaceholderMouseover = (lineNumber) => {
-		if (!this.state.exampleHaiku) { return; }
-		
-		this.setState({
-			exampleHaiku: this.state.exampleHaiku.map((item, i) => 
-				(i === lineNumber) ? this.state.placeholders[i] : this.state.exampleHaikuOriginal[i]
-		)});
-	};
-		
-	handleResetClick = () => {
-		this.updateCurrentWord();
-		this.setState({originalWordWarning: false});
-	};
-	
-	handleResetPoem = () => {
-		this.setState({ 
-			history: [...this.state.history].splice(this.state.currentPoemIndex, 1, this.createPoem()),
-			poemIsEmpty: true,
-		});
-	};
-	
-	handleSavePoem = () => {
-		const poem = [...this.state.history].splice(this.state.currentPoemIndex,1).find(e=>true); 
-		if (!poem || !poem.lines){
+
+	createLines = (length=this.state.criteria.lineCount) => {
+		return new Array(length).fill(""); 
+	}
+
+	handlePoemClick = (e, lineNumber) => {			
+		// https://stackoverflow.com/questions/7563169/detect-which-word-has-been-clicked-on-within-a-text
+		var word = '';
+		let selection = window.getSelection().modify;
+		if (selection && window.getSelection) {
+						
+			// save original cursor position
+			// http://dimafeldman.com/js/maintain-cursor-position-after-changing-an-input-value-programatically/
+			var cursorStart = e.target.selectionStart,
+				cursorEnd = e.target.selectionEnd;
 			
-			this.setState({
-				poemIsEmpty:true
-			});
-			return;
+			var sel = window.getSelection();
+			if (sel.isCollapsed) {
+				sel.modify('move', 'forward', 'character');
+				sel.modify('move', 'backward', 'word');
+				sel.modify('extend', 'forward', 'word');
+				word = sel.toString();
+				sel.modify('move', 'forward', 'character'); // clear selection
+			} else {
+				word = sel.toString();
+			}
+			
+			// restore cursor position
+			e.target.setSelectionRange(cursorStart, cursorEnd);
 		}
 		
-		// replaces `lines` with `activeEdit`s 
-		const history = [...this.state.history].map((item, i) => {
-			if (i === this.state.currentPoemIndex) {
-				item.lines = [...item.activeEdit]; 
-				item.activeEdit = null;
-				return item;
-			} else {
-				return item;
-			}
-		});
-
-		this.setState({ 
-			history: history,
-			currentPoemIndex: history.length-1,
-		});
-
-		this.handleCreateNewPoem();
-	};	
+		const currentWord = this.state.map.get(word);
+		if (currentWord === undefined){
+			this.updateCurrentWord(word);
+		} else {
+			this.setState({
+				currentWord: {...currentWord, edited:false},
+			});
+		}
+		
+		this.setState({currentLine: lineNumber});
+	};
 
 	handleDefinitionChange = (e) => {
-		if (e.target.value && e.target.value !== this.state.currentWord.definition) {
-			this.setState({displayDefinitionUpdate: true});
+		if (e.target.value && e.target.value !== this.state.currentWord.activeEdit.edit.definition) {
+			this.setState({display: {...this.state.display, definitionUpdate: true}});
 		} else {
-			this.setState({displayDefinitionUpdate: false});
+			this.setState({display: {...this.state.display, definitionUpdate: false}});
 		}
 
 		this.setState({
 			currentWord: {
 				...this.state.currentWord, 
-				activeEdit: {...this.state.activeEdit, 
+				activeEdit: {...this.state.currentWord.activeEdit, 
 					definition: true, 
-					edit: {...this.state.currentWord, definition: e.target.value}}
+					edit: {...this.state.currentWord.activeEdit.edit, definition: e.target.value}}
 			}
 		});
 	};
 
 	handleSyllableChange = (e) => {
 		if (e.target.value && e.target.value !== this.state.currentWord.syllables) {
-			this.setState({displaySyllableUpdate: true});
+			this.setState({display: {...this.state.display, syllableUpdate: true}});
 		} else {
-			this.setState({displaySyllableUpdate: false})
+			this.setState({display: {...this.state.display, syllableUpdate: false}});
 		}
 		
 		this.setState({
 			currentWord: {
 				...this.state.currentWord, 
-				activeEdit: {...this.state.activeEdit, 
+				activeEdit: {...this.state.currentWord.activeEdit, 
 					syllables: true, 
-					edit: {...this.state.currentWord, syllables: (e.target.value ? parseInt(e.target.value) : '')}
+					edit: {...this.state.currentWord.activeEdit.edit, syllables: (e.target.value ? parseInt(e.target.value) : '')}
 				}
 			}
 		});		
 	};
-	
-	handleTitleChange = (newTitle) => {
-		this.setState({history: this.state.history.map((poem, index) => {
-			if (index === this.state.currentPoemIndex) {
-				return {...poem, title: newTitle}
-			} else {
-				return poem; 
-			}
-		})});
+
+	handleStart = () => {
+		const newPoem = {...this.createPoem()}; 
+		if (this.state.history && this.state.history.length) { return; }
+		const history = [ newPoem ];	 
+		this.setState({ 
+			history: history,
+			currentPoemIndex: (history.length ? history.length-1 : 0),
+			activeView: this.state.views.poemBuilder.name
+		});
 	};
-	
-	incrementCounter = () => {
-		
-		this.setState({counter: this.state.counter+1});
-	};
-	
-	isPoemEmpty = (lines) => {
-		if (!lines || !lines.length) {
-			return true; 
-		}
-		return lines.reduce((total, currentLine) => total && !currentLine, true);
-	};
-	
+
 	lookupWord = (text, next, ...nextArgs) => {
 		if (!text && !next) { console.log(`lookupWord --> word: ${text}`); return null; }
 		var url = `${url_base}/wordAPI/${text}`;
-		console.log(`url: ${url}`);
 		fetch(url)
 			.then(res => res.json())
 			.then(res => {
-				console.log(`response with word data: ${text}, ${JSON.stringify(res)}`);
 				const word = {
 					text: text,
 					definition: res.definition,
 					syllables: res.syllables,
 					edited: res.edited,
-					activeEdit: res.activeEdit
+					activeEdit: {
+						edit: res,
+					}
 				}
 				next(word, nextArgs);
 			})
 			.catch(err => err);
 	};
 
-	togglePoemHistory = (index=0) => {
-		if (index === this.state.currentPoemIndex) { return; }
-		const currentPoem = [...this.state.history][this.state.currentPoemIndex];
-		console.log(`togglePoemHistory, history1: ${JSON.stringify(this.state.history)}`);
+	renderViews = () => {
+		let views = [(this.state.display.history ? this.getView(this.state.views.history.name) : null)];
+		views.push(this.getView(this.state.activeView)); 
+		return views; 
+	};
 
-		console.log(`togglePoemHistory, currentPoem: ${JSON.stringify(currentPoem)}`);
-		if (!currentPoem) { return null; }
-		const lines = (currentPoem.activeEdit && currentPoem.activeEdit.length) ? currentPoem.activeEdit : currentPoem.lines;
-		console.log(`togglePoemHistory, lines: ${JSON.stringify(currentPoem.activeEdit)}`);
-		console.log(`togglePoemHistory, index: ${JSON.stringify(this.state.currentPoemIndex)}`);
-		console.log(`togglePoemHistory, [...history]: ${JSON.stringify([...this.state.history])}`);
-		const newPoem = {...[...this.state.history][this.state.currentPoemIndex], lines: currentPoem.activeEdit};
-		console.log(`togglePoemHistory, newPoem: ${JSON.stringify(newPoem)}`);
-		let history = [...this.state.history];
-		history.splice(this.state.currentPoemIndex,1,newPoem);
+	incrementCounter = () => {
+		
+		this.setState({counter: this.state.counter+1});
+	};
 
+	createPoem = (count=null, title='Haiku') => {
+		const num = count ? count : this.state.counter;
+		this.incrementCounter();
+		const fullTitle = `${title} ${num}`;
+		let newPoem = {
+			user: this.state.user,
+			id: `${this.state.user}_${num}`, 
+			title: fullTitle,
+			lines: this.createLines(),
+			linesEdit: this.createLines(),
+			lineCount: 3,
+			type: "haiku",
+			valid: false,
+		};
+		return newPoem;
+	};
 
-		console.log(`togglePoemHistory, history3: ${JSON.stringify(history)}`);
+	viewOriginalWord = (viewStatus) => {
+		this.setState({ display: {...this.state.display, originalWordWarning: viewStatus}});
+	};
 
+	continueUpdate = (displayWarning, updateSyllables=true, updateDefinition=true) => {
+		if (!this.state.currentWord || !this.state.currentWord.activeEdit) { return; }
+		
+		const currentWord = {...this.state.currentWord};
+		
+		const newSyllableCount = (updateSyllables ? this.state.currentWord.activeEdit.edit.syllables : currentWord.syllables);
+		const newDefinition = (updateDefinition ? this.state.currentWord.activeEdit.edit.definition : currentWord.definition); 
+		
+		const newWord = {...currentWord, syllables: newSyllableCount, definition: newDefinition, original:{...currentWord}, edited: true, activeEdit: {...currentWord}};
+		const map = this.state.map;
+		map.delete(currentWord.text);
+		map.set(currentWord.text, newWord);
 
-		this.setState({
-			history: history,
-			currentPoemIndex: index,
-			poemIsEmpty: this.isPoemEmpty(lines),
+		let valid;
+		let currentPoem;  
+		const history = this.state.history.map((poem, i) => {
+			if (i === this.state.currentPoemIndex){
+				currentPoem = this.getCurrentPoem(); 
+				valid = this.validatePoem(poem.linesEdit);
+				return {...currentPoem, valid: valid}
+			} else { 
+				currentPoem = poem;
+				return currentPoem;  
+			}; 
 		});
+
+		if (updateSyllables) {
+			this.cancelWarning(this.state.display.syllableUpdate, true, false); 
+		}
+
+		if (updateDefinition) {
+			this.cancelWarning(this.state.display.definitionUpdate, false, true);
+		}
+
+		this.updateSyllableCounts(currentPoem.linesEdit);
+		
+		this.setState({
+			map: map,
+			displaySyllableUpdate: false,
+			currentWord: newWord,
+			history: history,
+		});
+	};
+
+	cancelWarning = (displayWarning, resetSyllables=true, resetDefinition=true) => {
+		if (this.state.currentWord && this.state.currentWord.activeEdit) {
+			this.updateCurrentWord(null, resetSyllables, resetDefinition);
+		}
+		this.setState({displayWarning: false});
 	};
 
 	// If newWord=`null`, refresh currentWord by querying the db and overwriting local changes to syllable/definition. 
@@ -471,42 +467,28 @@ class Game extends React.Component {
 			newWord = ('text' in currentWord) ? currentWord.text : '';
 		} 
 		this.addWordToMap(newWord, (wordObject) => {
-			this.setState({currentWord: {...wordObject, activeEdit: false}})
+			const poem = this.getCurrentPoem(); 
+			const lines = poem.linesEdit ? poem.linesEdit : poem.lines;
+			const syllableCounts = lines.map(line => this.getSyllableCount(line));
+			this.setState({
+					currentWord: {...wordObject, 
+						activeEdit: {
+							syllables: false,
+							definition: false, 
+							edit: {...wordObject}
+						}, 
+						syllableCounts: syllableCounts}});					
 		}); 
 	};
 
-	getCurrentPoem = () => {
-		return [...this.state.history].splice(this.state.currentPoemIndex, 1).find(e=>true); 
-	}
-
-	updateSyllableCounts = () => {
-		const poem = this.getCurrentPoem(); 
-		if (!poem || !poem.lines || !poem.lines.length || !poem.activeEdit || !poem.activeEdit.length) { return null; }
-		
-		const lines = (poem.activeEdit.length ? poem.activeEdit : poem.lines);
-
-		const syllableCounts = lines.map(line => {
-			if (!line) {
-				return 0;
-			}
-			
-			return line.split(" ").reduce((total, word) => {
-				const targetWord = this.state.map.get(word);
-				if (!targetWord || !('syllables' in targetWord) || targetWord.syllables === undefined) { return total + 0; }	
-				return total + targetWord.syllables;
-			}, 0); 
-		});
-		this.setState({syllableCounts: syllableCounts});
-		return syllableCounts; 
-	}
-
-	validatePoem = (lines) => {
-		const syllableCounts = this.updateSyllableCounts();
+	validatePoem = (poem) => {
+		if (!poem) { return; }
+		const lines = poem.lines; 
 		if (!lines) {
 			return false;
 		}
 		for (let i = 0; i < lines.length; i++) {
-			if (syllableCounts[i] !== this.state.criteria.syllableLimits[i]) {
+			if (this.state.syllableCounts[i] !== this.state.criteria.syllableLimits[i]) {
 				this.setState({valid: false});
 				return false;
 			}
@@ -514,120 +496,126 @@ class Game extends React.Component {
 		this.setState({valid:true});
 		return true; 
 	};
-	
-	viewOriginalWord = (viewStatus) => {
-		
-		this.setState({ originalWordWarning: viewStatus});
+
+	getSyllableCount = (line) => {
+		if (!line) { return; }
+		return line.split(" ").reduce((total, word) => {
+				const targetWord = this.state.map.get(word);
+				if (!targetWord || !('syllables' in targetWord) || targetWord.syllables === undefined) { return total + 0; }	
+				return total + targetWord.syllables;
+		}, 0);
 	};
-	
-	renderSwitch(view) {
+
+	togglePoemHistory = (index=0) => {
+		if (index === this.state.currentPoemIndex) { return; }
+		const currentPoem = [...this.state.history][this.state.currentPoemIndex];
+		if (!currentPoem) { return null; }
+		//let lines = currentPoem.linesEdit ? currentPoem.linesEdit : currentPoem.lines;
+		//if (!lines) { lines = this.createLines(); }
+		//const newPoem = {...[...this.state.history][this.state.currentPoemIndex], lines: lines};
+		let history = [...this.state.history];
+		history.splice(this.state.currentPoemIndex,1,this.getCurrentPoem());
+		this.setState({
+			history: history,
+			currentPoemIndex: index,
+		});
+	};
+
+	getView = (view="") => {
+		if (!view || !(view in this.state.views)) {
+			return; 
+		}
+
+		const views = {...this.state.views};
+		const poem = this.getCurrentPoem();
+		if (!poem) { return; }
+		console.log(`current poem: ${JSON.stringify(poem)}`);
+		let lines = poem.linesEdit ? poem.linesEdit : poem.lines;
+		if (!lines) { lines = this.createLines()} 
+
+		const currentWord = this.state.currentWord ? (this.state.currentWord.activeEdit ? this.state.currentWord.activeEdit.edit : null) : null; 
 		
-		let poem = {}; 
-		if (this.state.history) {
-			poem = [...this.state.history][this.state.currentPoemIndex];
-		} 
-		const viewOptions = this.state.views;
+		const filteredHistory = this.state.history ? this.state.history.filter((item) => item.user === this.state.user) : null;
 
 		switch(view) {
-			case null: 
-				return null;
-			case viewOptions.poemBuilder:
-				return (
-					<>
-					<PoemBuilder 
-							syllableCounts={this.state.syllableCounts}
-							poem={poem}
-							valid={this.state.valid}
-							poemIsEmpty={this.state.poemIsEmpty}
-							map={this.state.map}
-							criteria={this.state.criteria}
-							lineCount={this.state.lineCount} 
-							currentPoemIndex={this.state.currentPoemIndex}
-							handleKeyDown={this.handleKeyDown}
-							handleClick={this.handleClick}
-							currentWord={this.state.currentWord}
-							handleSyllableChange={this.handleSyllableChange}
-							displaySyllableUpdate={this.state.displaySyllableUpdate}
-							displayDefinitionUpdate={this.state.displayDefinitionUpdate}
-							autoresize={this.autoresize}
-							currentLine={this.state.currentLine}
-							handleResetClick={this.handleResetCurrentWordClick}
-							handleLineChange={this.handleLineChange}
-							handleCurrentWordChange={this.handleCurrentWordChange}
-							handleDefinitionChange={this.handleDefinitionChange}
-							
-							continueDefinitionUpdate={() => this.continueUpdate(this.state.displayDefinitionUpdate, false, true)}
-							continueSyllableUpdate={() => this.continueUpdate(this.state.displaySyllableUpdate, true, false)}
-							
-							cancelDefinitionUpdate={() => this.cancelWarning(this.state.displayDefinitionUpdate, false, true)}
-							cancelSyllableUpdate={() => this.cancelWarning(this.state.displaySyllableUpdate, true, false)}
-							handleSavePoem={this.handleSavePoem}
-							handleResetPoem={this.handleResetPoem}
-							viewOriginalWord={this.viewOriginalWord}
-							displayOriginalWord={this.state.displayOriginalWord}
-							handleCurrentWordReset={this.handleCurrentWordReset}
-							handleTitleChange={this.handleTitleChange}
-							titleEdited={this.state.titleEdited}
-							handlePlaceholderMouseover={this.handlePlaceholderMouseover}
-							handlePlaceholderMouseout={this.handlePlaceholderMouseout}
-							createPoem={this.createPoem}
-							updateSyllableCounts={this.updateSyllableCounts}
-						/>
-						{this.state.displayHistory ? 
-							<History 
-								history={this.state.history}
-								currentPoemIndex={this.state.currentPoemIndex}
-								togglePoemHistory={this.togglePoemHistory}
-								poemIsEmpty={this.state.poemIsEmpty}
-								/>
-							: null
-						}
-						
-					</>
-				);
+			case views.poemBuilder.name:
+				return (<PoemBuilder
+					poem={poem}
+					syllableCounts={this.state.syllableCounts}
+					map={this.state.map}
+					criteria={this.state.criteria}
+					handleKeyDown={this.handlePoemKeyDown}
+					handleClick={this.handlePoemClick}
+					handleLineChange={this.handlePoemLineChange}
+					currentLine={this.state.currentLine}
+					handleSavePoem={this.handleSavePoem}
+					handleTitleChange={this.handleTitleChange}
+					handleDefinitionChange={this.handleDefinitionChange}
+					handleSyllableChange={this.handleSyllableChange}
+					handleResetPoem={this.handleResetPoem}
+					currentWord={currentWord}
+					displayDefinitionUpdate={this.state.display.definitionUpdate}
+					displaySyllableUpdate={this.state.display.syllableUpdate}
+					continueDefinitionUpdate={() => this.continueUpdate(this.state.display.definitionUpdate, false, true)}
+					continueSyllableUpdate={() => this.continueUpdate(this.state.display.syllableUpdate, true, false)}
+					cancelDefinitionUpdate={() => this.cancelWarning(this.state.display.definitionUpdate, false, true)}
+					cancelSyllableUpdate={() => this.cancelWarning(this.state.display.syllableUpdate, true, false)}
+					viewOriginalWord={this.viewOriginalWord}
+					displayOriginalWord={this.state.display.originalWordWarning}
+				/>); 
+				break; 
+			case views.wordBank.name: 
+				const words = Object.keys(this.state.map).map(item => this.state.map.get(item));
+				return <WordBank words={words} />;
 				break;
-			case viewOptions.history:
-				break;
-			case viewOptions.myWords:
-				break;
-			case viewOptions.help:
-				break;
-			case viewOptions.selfDestruct:
-				break;
-			default: 
-				return;
-
+			case views.help.name: 
+				return <Help />;
+				break; 
+			case views.selfDestruct.name: 
+				return <SelfDestruct />; // "relax... screen, game, photo, gif, etc" 
+				break;  
+			case views.history.name:
+				return <History 
+					history={filteredHistory} 
+					currentPoemIndex={this.state.currentPoemIndex} 
+					togglePoemHistory={this.togglePoemHistory}
+				/>;
+				break; 
 		}
-	}
-
-
+	};
 
 	render() {	
-
-		let startButtonText = "Build!";
-
-		
+		const buttons = Object.keys(this.state.views).map(item => {
+			return {
+				"name": item,
+				"text": this.state.views[item].text
+			};
+		});
 
 		return (
-			<>
+			<Fragment>
 			
-			{this.state.activeView ? 
-
-				<>
-				 <NavBar 
-				 	buttonNames={this.state.viewNames} handleClick={this.toggleView}
-				 	handleMouseover={this.handleMouseoverHistory}
-				 	handleMouseout={this.handleMouseoutHistory}
-				 />
-				 {this.renderSwitch(this.state.activeView)}
-				</>
+			{this.state.activeView && this.state.history && this.state.history.length?
+				<Fragment>
+					<NavBar
+						buttons={buttons}
+						selectedButton={this.state.activeView}
+						displayHistory={this.state.display.history}
+						handleClick={this.toggleView}
+					/>
+					{this.renderViews(this.state.activeView)}
+				</Fragment>
 				:
-				<Button buttonStyle="startButton" handleClick={this.handleCreateNewPoem} value={startButtonText} displayHistory={this.state.displayHistory}/>
+				<Button 
+					buttonStyle="startButton"
+					handleClick={this.handleStart}
+					value="Build!"
+				/>
 			}
-			</>
-		);
-	}
 			
+			</Fragment>
+		);
+	};	
 };
 
 export default Game; 
