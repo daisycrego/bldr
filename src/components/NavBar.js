@@ -10,7 +10,7 @@ const NavBar = (props) => {
 					className={(item.name === selectedButton || (item.name === "history" && displayHistory)) ? "selected" : null} 
 					key={i} 
 					onClick={() => props.handleClick(item.name)}>
-					{item.text}
+					{item.name ==="history" && displayHistory ? 'Hide ': ''}{item.text}
 				</button>
 			})}
 		</div>

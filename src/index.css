@@ -121,7 +121,7 @@ span.line > h4 {
 }
 
 div.history {
-	grid-column-start: 2;
+	grid-column-start: 3;
 	grid-column-end: 4;
 	grid-row-start: 2;
 	grid-row-end: 5;
@@ -129,7 +129,6 @@ div.history {
 	display: inline-flex;
 	flex-direction: column;
 	align-items: flex-end;
-
 }
 
 div.row {

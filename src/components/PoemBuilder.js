@@ -13,8 +13,6 @@ const PoemBuilder = (props) => {
 	const poemIsEmpty = lines.reduce((entirePoemIsEmpty, currentLine) => {
 		return !currentLine && entirePoemIsEmpty;  
 	}, true);
-
-	
 	
 	return (
 		<>

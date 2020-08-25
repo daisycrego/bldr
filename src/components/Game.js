@@ -76,7 +76,7 @@ class Game extends React.Component {
 		}).then((response) => response.json())
 		.then((response) => {
 			console.log(response); 
-			this.setState({history: response});
+			this.setState({history: response, counter: response.length});
 		});		
 	};
 
@@ -152,7 +152,7 @@ class Game extends React.Component {
 
 		this.setState({ 
 			history: [...history, this.createPoem()],
-			currentPoemIndex: history.length-1,
+			currentPoemIndex: history.length,
 		});
 
 		var url = `${url_base}/wordAPI/poem`;		
