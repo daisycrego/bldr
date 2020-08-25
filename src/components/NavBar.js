@@ -1,10 +1,11 @@
 import React from 'react'; 
 
 const NavBar = (props) => {
-	const { buttons, selectedButton, displayHistory } = props; 
+	const { userName, buttons, selectedButton, displayHistory } = props; 
 
 	return (
 		<div className="nav">
+			
 			{buttons.map((item, i) => {
 				return <button 
 					className={(item.name === selectedButton || (item.name === "history" && displayHistory)) ? "selected" : null} 
@@ -13,6 +14,9 @@ const NavBar = (props) => {
 					{item.name ==="history" && displayHistory ? 'Hide ': ''}{item.text}
 				</button>
 			})}
+			{
+				<button disabled> by {userName} </button>
+			}
 		</div>
 	);
 };
