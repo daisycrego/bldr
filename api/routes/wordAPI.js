@@ -4,6 +4,7 @@ var util = require('util');
 var router = express.Router(); 
 var Word = require('../models/Word');
 var Poem = require('../models/Poem');
+var WordMap = require('../models/WordMap');
 const bodyParser = require('body-parser');
 
 var jsonParser = bodyParser.json(); 
@@ -24,13 +25,39 @@ fetchWordData(word) {
   }
 */
 
+router.get('/map/:user', function(request, response, next) {
+	console.log(`running the wordAPI -> GET request, fetching a map by USER`);
+	const user = request.params.user; 
+	WordMap.find({user:user}, function(err, results) {
+		if (err) { next(err); }
+		console.log(results); 
+		if (results) {
+			return response.send(results);
+		} else {
+			return response.send(null); 
+		}
+	});
+});
+
+router.post('/map', jsonParser, function(request, response, next) {
+	console.log(`running the wordAPI -> GET request, updating a map`);
+	//console.log(JSON.stringify(request.body));
+	const map = request.body.map;
+	const user = request.body.user;  
+	if (!map || !user) { return response.send('Map not saved.'); }
+
+	WordMap.updateOne({'user': user}, map, {upsert: true}, function(error, doc) {
+		if (error) { next(error); }
+		//console.log(response);
+		return response.send('Successfully saved.');
+	});
+});
+
 router.get('/poem/:user', function(request, response, next) {
 	console.log(`running the wordAPI -> GET request, fetching a poem by USER`);
 	const user = request.params.user; 
-	console.log(`user: ${user}`);
 	Poem.find({user: user}, function(err, results) {
 		if (err) { next(err); }
-		console.log(results); 
 		if (results) {
 			return response.send(results); 
 		} else {
@@ -41,13 +68,8 @@ router.get('/poem/:user', function(request, response, next) {
 
 router.post('/poem', jsonParser, function(request, response, next) {
 	console.log("wordAPI -> POST request, updating a poem");
-	//console.log(`request: ${JSON.stringify(request)}`);
 	const poem = request.body; 
-	
-	if (!poem) { console.log(`poem: ${JSON.stringify(poem)}`); return; }
-	var query = { 'id': poem.id }; 
-	const newData = { poem: poem };
-
+	if (!poem) { return; }
 	Poem.updateOne({'id': poem.id}, poem, { upsert: true }, function(error, doc) {
 		if (error) { next(err); }
 		return response.send('Successfully saved.');
@@ -77,7 +99,6 @@ router.get('/:word', function(request, response, next) {
 	// check if word exists in DB
 	Word.findOne({'word': request.params.word}, function(err, results) {
 		if (err) { return next(err); }
-		console.log(results);
 		if (results) {
 			// Word already exists, return the word that already exists.
 			return response.send(results);
@@ -113,7 +134,10 @@ router.get('/:word', function(request, response, next) {
 });
 
 router.get('/', function(req, res, next) {
-	res.sendStatus("Invalid search: please provide a word"); 
+	Word.find({}, function(err, words) {
+		console.log(words); 
+		return res.send(words); 
+	});
 });
 
 module.exports = router; 

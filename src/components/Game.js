@@ -62,46 +62,92 @@ class Game extends React.Component {
 			currentWord: null,
 			syllableCounts: [0,0,0],
 		};
+
+
 	};
 
-
-
 	toggleUser = () => {
-		console.log(`toggleUser`);
 		const nextUser = this.state.users.find(user => user.userName != this.state.user.userName); 
 		this.setState({user: nextUser});
 	};
 
-	async componentWillMount() {
-		console.log(`componentDidMount`);
+	componentWillMount() {
 		const user = this.state.user;
 		if (!user) { console.log(`no current user found, returning`); return; }	
 		this.setState({user: user});
-		const url = `${url_base}/wordAPI/poem/${user.userName}`;
-		console.log(url);
-		const response = await fetch(url, {
+		
+		this.fetchPoem(user, (history) => {console.log(`fetched history: ${JSON.stringify(history)}`); this.setState({history: history, counter: history.length, currentPoem: history[0] ? history[0].id : null})});
+		
+		this.fetchWords((words) => {this.setState({map: new Map(words)}); console.log(`map loaded`);}); 
+
+		/*
+		this.fetchMap(user, (map) => {
+			if (!map || !map.length) {
+				map = new Map();
+			}
+			this.setState({map: map});
+		});
+		*/
+	};
+
+	fetchWords = async (next) => {
+		console.log(`fetchWords`); 
+		const wordUrl = `${url_base}/wordAPI/`; 
+		const response = await fetch(wordUrl, {
+			headers: {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+			}
+		}).then(response => response.json())
+		.then(response => next(response));
+	};
+
+	fetchPoem = async (user, next) => {
+	  if (!user) { return; }
+		const poemUrl = `${url_base}/wordAPI/poem/${user.userName}`;
+		const response = await fetch(poemUrl, {
 			headers: {
 				'Content-Type': 'application/json',
 				'Accept': 'application/json',
 			}
 		}).then((response) => response.json())
 		.then((response) => {
-			console.log(response); 
-			this.setState({history: response, counter: response.length, currentPoem: response[0].id});
-		});		
+			next(response);
+		});
+	};
+
+	fetchMap = async (user, next) => {
+		if (!user) { return; }
+		const mapUrl = `${url_base}/wordAPI/map/${user.userName}`;
+		const response = await fetch(mapUrl, {
+			headers: {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+			}
+		}).then((response) => response.json())
+		.then((response) => {
+			if (!response) { next(new Map()); }
+			next(response); 
+		});
 	};
 
 	addWordToMap = (word, next) => {
-		const map = new Map(this.state.map); 
+		const map = new Map(this.state.map);
 		if (map.get(word) !== undefined) {
 			next(map.get(word)); // use cached word
 		} else {
 			// lookup word
 			this.lookupWord(word, (wordObject) => { 
-				this.setState({map: this.state.map.set(word, {...wordObject}) }); 
+				this.updateMap(word, wordObject);  
 				next(wordObject); 
 			});
 		}		
+	};
+
+	updateMap = (word, wordObject) => {
+		console.log(`updateMap`); 
+		console.log(`this.state.map: ${JSON.stringify(this.state.map)}`);
+		this.setState({map: this.state.map.set(word, wordObject)}, this.postMap(this.state.map));
 	};
 
 	toggleView = (view="") => {
@@ -168,19 +214,46 @@ class Game extends React.Component {
 			currentPoem: newPoem.id,
 		});
 
-		var url = `${url_base}/wordAPI/poem`;		
+		this.postPoem(poem);
+		//this.postMap(this.state.map); 
+	};	
+
+	postPoem = (poem) => {
+		if (!poem ) { return poem; }
+		var poemUrl = `${url_base}/wordAPI/poem`;		
 		var headers = {'Content-Type': 'application/json'};
-		fetch(url, {
+		fetch(poemUrl, {
 			method: 'post', 
 			body: JSON.stringify(poem),
 			headers: headers,
 		})
 			.then(res => res.json())
 			.then(res => {
-				console.log(`result of fetch: ${JSON.stringify(res)}`);
+				console.log(`poem posted: ${JSON.stringify(res)}`);
+				console.log(`map: ${JSON.stringify(this.state.map)}`);
+				this.postMap(this.state.map);
 			})
 			.catch(err => err);
-	};	
+	};
+
+	postMap = (map) => {
+		if (!map) { return map; };
+		console.log(`postMap, map: ${JSON.stringify(map)}`);
+		var mapUrl = `${url_base}/wordAPI/map`;
+		var headers = {'Content-Type': 'application/json'}; 
+		var body = {
+			user: this.state.user.userName, 
+			map: map,
+		}
+		fetch(mapUrl, {
+			method: 'post', 
+			body: JSON.stringify(body),
+			headers: headers,
+		})
+			.then(res => res.json())
+			.then(res => console.log(`map posted: ${JSON.stringify(res)}`))
+			.catch(err => err); 
+	};
 
 	handlePoemClick = (e, lineNumber) => {
 		// https://stackoverflow.com/questions/7563169/detect-which-word-has-been-clicked-on-within-a-text
@@ -208,8 +281,9 @@ class Game extends React.Component {
 			e.target.setSelectionRange(cursorStart, cursorEnd);
 		}
 		
-		const currentWord = this.state.map.get(word);
-		if (currentWord === undefined){
+		const map = this.state.map ? this.state.map : new Map(); 
+		const currentWord = map.get(word);
+		if (currentWord === null){
 			this.updateCurrentWord(word);
 		} else {
 			this.setState({
@@ -261,7 +335,7 @@ class Game extends React.Component {
 		
 		let lines;
 		const currentPoem = this.getCurrentPoem(); 
-		let syllableCounts = this.state.syllableCounts; 
+		let syllableCounts; 
 		const history = this.state.history.map((poem, index) => {
 			if (!poem) { return poem; }
 			if (poem.id === this.state.currentPoem) {
@@ -272,7 +346,8 @@ class Game extends React.Component {
 				syllableCounts = lines.map(line => this.getSyllableCount(line));
 				return {...poem, linesEdit: currentLines};
 			}
-		});		
+		});
+		console.log(`handlePoemLineChange: syllableCounts: ${syllableCounts}`); 		
 		this.setState({ history: history, syllableCounts: syllableCounts });
 
 		this.validatePoem(this.getCurrentPoem());		
@@ -311,7 +386,8 @@ class Game extends React.Component {
 			e.target.setSelectionRange(cursorStart, cursorEnd);
 		}
 		
-		const currentWord = this.state.map.get(word);
+		const map = new Map(this.state.map); 
+		const currentWord = map.get(word);
 		if (currentWord === undefined){
 			this.updateCurrentWord(word);
 		} else {
@@ -431,7 +507,7 @@ class Game extends React.Component {
 		const newDefinition = (updateDefinition ? this.state.currentWord.activeEdit.edit.definition : currentWord.definition); 
 		
 		const newWord = {...currentWord, syllables: newSyllableCount, definition: newDefinition, original:{...currentWord}, edited: true, activeEdit: {...currentWord}};
-		const map = this.state.map;
+		const map = new Map(this.state.map);
 		map.delete(currentWord.text);
 		map.set(currentWord.text, newWord);
 
@@ -477,9 +553,10 @@ class Game extends React.Component {
 	// Else, replace currentWord with the lookup results for newWord. 
 	updateCurrentWord = (newWord=null, resetSyllables=true, resetDefinition=true) => {
 		const currentWord = {...this.state.currentWord};
+
 		if (!currentWord && !newWord) { return; }
 		if (!newWord) { 
-			newWord = ('text' in currentWord) ? currentWord.text : '';
+			newWord = currentWord;
 		} 
 		this.addWordToMap(newWord, (wordObject) => {
 			const poem = this.getCurrentPoem(); 
@@ -512,10 +589,34 @@ class Game extends React.Component {
 		return true; 
 	};
 
+	updateSyllableCounts = (lines) => {
+		const syllableCounts = this.getSyllableCounts(lines); 
+		this.setState({syllableCounts: syllableCounts});
+	};
+
+	getSyllableCounts = (lines) => {
+		console.log(`getSyllableCounts: map: ${JSON.stringify(this.state.map)}`); 
+		const syllableCounts = lines.map(line => {
+			if (!line) {
+				return 0;
+			}
+			const map = new Map(this.state.map);			
+			return line.split(" ").reduce((total, word) => {
+				if (!map || !map.length) { return; }
+				const targetWord = map.get(word);
+				if (!targetWord || !('syllables' in targetWord) || targetWord.syllables === undefined) { return total + 0; }	
+				return total + targetWord.syllables;
+			}, 0); 
+		}, this);
+		return syllableCounts; 
+	};
+
 	getSyllableCount = (line) => {
 		if (!line) { return; }
 		return line.split(" ").reduce((total, word) => {
-				const targetWord = this.state.map.get(word);
+				const map = new Map(this.state.map); 
+				if (!map || !map.length) { return; }
+				const targetWord = map.get(word);
 				if (!targetWord || !('syllables' in targetWord) || targetWord.syllables === undefined) { return total + 0; }	
 				return total + targetWord.syllables;
 		}, 0);
@@ -538,7 +639,6 @@ class Game extends React.Component {
 		const views = {...this.state.views};
 		const poem = this.getCurrentPoem();
 		if (!poem) { console.log(`poem: ${JSON.stringify(poem)}, returning`); return; };
-		console.log(`current poem: ${JSON.stringify(poem)}`);
 		let lines = poem.linesEdit ? poem.linesEdit : poem.lines;
 		if (!lines) { lines = this.createLines()} 
 
@@ -547,13 +647,15 @@ class Game extends React.Component {
 		const user = this.state.user; 
 		const sanitizedHistory = this.state.history.filter(poem => poem); 
 		const filteredHistory = sanitizedHistory ? (sanitizedHistory.filter((poem) => poem.user === (user ? user.userName : ''))) : null;
-		console.log(`filteredHistory: ${JSON.stringify(filteredHistory)}`);
+
+		const syllableCounts = this.getSyllableCounts(lines); 
+		console.log(`getView: syllableCounts: ${syllableCounts}, lines: ${lines}`); 
 
 		switch(view) {
 			case views.poemBuilder.name:
 				return (<PoemBuilder
 					poem={poem}
-					syllableCounts={this.state.syllableCounts}
+					syllableCounts={syllableCounts}
 					map={this.state.map}
 					criteria={this.state.criteria}
 					handleKeyDown={this.handlePoemKeyDown}
@@ -577,7 +679,8 @@ class Game extends React.Component {
 				/>); 
 				break; 
 			case views.wordBank.name: 
-				const words = Object.keys(this.state.map).map(item => this.state.map.get(item));
+				const map = new Map(this.state.map); 
+				const words = Object.keys(this.state.map).map(item => map.get(item));
 				return <WordBank words={words} />;
 				break;
 			case views.help.name: 
@@ -605,7 +708,6 @@ class Game extends React.Component {
 		});
 
 		const currentUser = this.state.user;
-		console.log(`currentUser: ${JSON.stringify(this.state.user)}`);  
 
 		return (
 			<Fragment>

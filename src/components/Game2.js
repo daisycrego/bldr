@@ -477,7 +477,7 @@ class Game extends React.Component {
 
 	getCurrentPoem = () => {
 		return [...this.state.history].splice(this.state.currentPoemIndex, 1).find(e=>true); 
-	}
+	};
 
 	updateSyllableCounts = (lines) => {
 		console.log(`updateSyllableCounts`); 
@@ -502,7 +502,7 @@ class Game extends React.Component {
 
 		this.setState({syllableCounts: syllableCounts});
 		return syllableCounts; 
-	}
+	};
 
 	validatePoem = (lines) => {
 		//const currentPoem = this.state.history.slice(this.state.currentPoemIndex, 1).find(e => true);
@@ -541,7 +541,7 @@ class Game extends React.Component {
 				return null;
 			case viewOptions.poemBuilder:
 				return (
-					<>
+					<Fragment>
 					<PoemBuilder 
 							syllableCounts={this.state.syllableCounts}
 							poem={poem}
@@ -591,7 +591,7 @@ class Game extends React.Component {
 							: null
 						}
 						
-					</>
+					</Fragment>
 				);
 				break;
 			case viewOptions.history:
@@ -606,9 +606,7 @@ class Game extends React.Component {
 				return;
 
 		}
-	}
-
-
+	};
 
 	render() {	
 
@@ -617,11 +615,11 @@ class Game extends React.Component {
 		
 
 		return (
-			<>
+			<Fragment>
 			
 			{this.state.activeView ? 
 
-				<>
+				<Fragment>
 				 <NavBar 
 				 	buttonNames={this.state.viewNames} 
 				 	selectedButton={this.state.activeView}
@@ -631,11 +629,11 @@ class Game extends React.Component {
 				 	handleMouseout={this.handleMouseoutHistory}
 				 />
 				 {this.renderSwitch(this.state.activeView)}
-				</>
+				</Fragment>
 				:
 				<Button buttonStyle="startButton" handleClick={this.handleCreateNewPoem} value={startButtonText} displayHistory={this.state.displayHistory}/>
 			}
-			</>
+			</Fragment>
 		);
 	}
 			
