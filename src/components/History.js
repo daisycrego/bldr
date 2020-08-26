@@ -25,7 +25,7 @@ const History = (props) => {
 									disabled={isCurrentPoem}
 									className="poemHistoryButton" 
 									key={index} 
-									onClick={(e) => props.togglePoemHistory(index)}>
+									onClick={(e) => props.togglePoemHistory(poem.id)}>
 									<h4><strong>{poem.title}</strong></h4>
 									<br/>									
 									<MiniPoem

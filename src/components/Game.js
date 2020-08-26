@@ -118,8 +118,11 @@ class Game extends React.Component {
 	};
 
 	getCurrentPoem = () => {
-		return [...this.state.history].find(poem => poem.id === this.state.currentPoem); 
-		//return [...this.state.history].splice(this.state.currentPoemIndex, 1).find(e=>true);
+		const filteredHist = this.state.history.filter(poem => poem); 
+		if (!filteredHist) { return null; }
+		return filteredHist.find(poem => {
+			return poem.id === this.state.currentPoem;
+		}); 
 	};
 
 	handleTitleChange = (newTitle) => {
@@ -148,12 +151,13 @@ class Game extends React.Component {
 		if (!poem || !poem.lines){ return; }
 		
 		// replaces `lines` with `linesEdit`
-		const history = [...this.state.history].map((item, i) => {
-			if (item.id === this.state.currentPoem) {
-				item.lines = item.linesEdit; 
-				return item;
+		const history = [...this.state.history].map((poem, i) => {
+			if (!poem) { return poem; }
+			if (poem.id === this.state.currentPoem) {
+				poem.lines = poem.linesEdit; 
+				return poem;
 			} else {
-				return item;
+				return poem;
 			}
 		});
 
@@ -259,6 +263,7 @@ class Game extends React.Component {
 		const currentPoem = this.getCurrentPoem(); 
 		let syllableCounts = this.state.syllableCounts; 
 		const history = this.state.history.map((poem, index) => {
+			if (!poem) { return poem; }
 			if (poem.id === this.state.currentPoem) {
 				let currentLines = [...poem.linesEdit];
 				if (!currentLines) { currentLines = this.createLines()}
@@ -517,11 +522,9 @@ class Game extends React.Component {
 	};
 
 	togglePoemHistory = (poemId) => {
-		if (poemId === this.state.currentPoem) { return; }
-		const currentPoem = this.getCurrentPoem();
-		if (!currentPoem) { return null; }
-	
-		
+		//if (poemId === this.state.currentPoem) { return; }
+		//const currentPoem = this.getCurrentPoem();
+		//if (!currentPoem) { return null; }
 		this.setState({
 			currentPoem: poemId,
 		});
@@ -542,7 +545,8 @@ class Game extends React.Component {
 		const currentWord = this.state.currentWord ? (this.state.currentWord.activeEdit ? this.state.currentWord.activeEdit.edit : null) : null; 
 		
 		const user = this.state.user; 
-		const filteredHistory = this.state.history ? this.state.history.filter((item) => { console.log(`item: ${JSON.stringify(item)}`); return item.user === (user ? user.userName : '')}) : null;
+		const sanitizedHistory = this.state.history.filter(poem => poem); 
+		const filteredHistory = sanitizedHistory ? (sanitizedHistory.filter((poem) => poem.user === (user ? user.userName : ''))) : null;
 		console.log(`filteredHistory: ${JSON.stringify(filteredHistory)}`);
 
 		switch(view) {
