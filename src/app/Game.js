@@ -6,6 +6,14 @@ import NavBar from './NavBar';
 import WordBank from './WordBank';
 import SelfDestruct from './SelfDestruct';
 import Help from './Help';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from 'react-router-dom'
+import { PoemList} from '../features/poems/poemList'
+import { Poem } from '../features/poems/poem'
 
 const production  = 'https://poem-builder.herokuapp.com';
 const development = 'http://localhost:5000';
@@ -13,58 +21,39 @@ const url_base = (process.env.REACT_APP_ENVIRONMENT === 'development' ? developm
 
 const user_id ="a";
 
-class Game extends React.Component {
-	constructor(props) {
-		super(props); 
+function Game () {
 
-		this.state = {
-			user: {"userName": "a", "name": "J"},
-			users: [{"userName": "a", "name": "J"}, {"userName": "b", "name": "D"}],
-			counter: 0,
-			currentLine: 0, 
-			currentPoem: null, 
-			history: null, 
-			activeView: "poemBuilder", 
-			views: {
-				"poemBuilder": {
-					"name": "poemBuilder",
-					"text": "Current Build"
-				},
-				"wordBank": {
-					"name": "wordBank", 
-					"text": "Word Bank"
-				},
-				"help": {
-					"name": "help", 
-					"text": "Help"
-				}, 
-				"selfDestruct": {
-					"name": "selfDestruct",
-					"text": "Self Destruct"
-				},
-				"history": {
-					"name": "history",
-					"text": "My Poems"
-				},
-			},
-			display: {
-				"history": false, 
-				"syllableUpdate": false,
-				"definitionUpdate": false,
-				"originalWordWarning": false,
-			},
-			criteria: {
-				lineCount: 3,
-				syllableLimits: [5,7,5],
-				example: ["haikus are easy", "but sometimes they don't make sense", "refrigerator"],
-			},
-			map: new Map(), 
-			currentWord: null,
-			syllableCounts: [0,0,0],
-		};
+	return (
+		<Router>
+			<NavBar/>
 
-
-	};
+			<div className="App">
+				<Switch>
+					<Route
+						exact
+						path="/"
+						render={() => (
+							<React.Fragment>
+								<PoemList/>
+							</React.Fragment>
+						)}
+					/>
+					<Route
+						exact
+						path="/history"
+						render={() => (
+							<React.Fragment>
+								<PoemList/>
+							</React.Fragment>
+						)}
+					/>
+					<Route exact path="/poems/:poemId" component={Poem}/>
+					<Redirect to="/"/>
+				</Switch>
+			</div>
+		</Router>
+	)
+	/*
 
 	toggleUser = () => {
 		const users = [...this.state.users];
@@ -81,14 +70,14 @@ class Game extends React.Component {
 		
 		this.fetchWords((words) => {this.setState({map: new Map(words)}); console.log(`map loaded`);}); 
 
-		/*
+		
 		this.fetchMap(user, (map) => {
 			if (!map || !map.length) {
 				map = new Map();
 			}
 			this.setState({map: map});
 		});
-		*/
+		
 	};
 
 	fetchWords = async (next) => {
@@ -738,6 +727,9 @@ class Game extends React.Component {
 			</Fragment>
 		);
 	};	
+
+	*/
+
 };
 
 export default Game; 
