@@ -67,7 +67,8 @@ class Game extends React.Component {
 	};
 
 	toggleUser = () => {
-		const nextUser = this.state.users.find(user => user.userName != this.state.user.userName); 
+		const users = [...this.state.users];
+		const nextUser = users.find(user => user.userName != this.state.user.userName); 
 		this.setState({user: nextUser});
 	};
 
@@ -147,7 +148,9 @@ class Game extends React.Component {
 	updateMap = (word, wordObject) => {
 		console.log(`updateMap`); 
 		console.log(`this.state.map: ${JSON.stringify(this.state.map)}`);
-		this.setState({map: this.state.map.set(word, wordObject)}, this.postMap(this.state.map));
+		const newMap = new Map(this.state.map);
+		newMap.set(word, wordObject)
+		this.setState({map: newMap}, this.postMap(this.state.map));
 	};
 
 	toggleView = (view="") => {

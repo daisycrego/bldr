@@ -819,6 +819,11 @@ continueUpdate = (displayWarning, updateSyllables=true, updateDefinition=true) =
 ## Textarea Autoresizing
 - There's already a component for that: https://github.com/Andarist/react-textarea-autosize
 
+# Redux
+- See [Redux notes](redux.md). 
+
+# NTS
+- The current version, `Documents/builder`, which I am about to convert to Redux, is incorrect. I think there are multiple instances of mutating state, and that could be a source of some of the issues. But, I'm implementing Redux anyway, in `Documents/builderVersions/bldr_v0`, so I won't come back to this repo and fix things, for now. Food for thought. 
 
 ---
 
