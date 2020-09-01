@@ -9,12 +9,15 @@ export const CurrentWord = () => {
 			displayDefinitionUpdate = false, 
 			displayWordResetButton = false; 
 	
-
 	const dispatch = useDispatch()
 
 	const existingWord = useSelector(state => state.currentWord)
 
+	console.log(`existingWord: ${JSON.stringify(existingWord)}`)
+
 	const [currentWord, setCurrentWord] = useState(existingWord)
+
+	console.log(`currentWord: ${currentWord}`)
 
 	const syllableCount = currentWord ? currentWord.syllables : 0;
 

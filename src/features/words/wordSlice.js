@@ -1,9 +1,9 @@
 import { createSlice, nanoid } from '@reduxjs/toolkit'
 
-const initialMap = new Map()
-initialMap.set('hobbit', word)
-const initialState = { wordMap: initialMap, currentWord: null }; 
-const word = {"word": "hobbit", "definition": "from the Shire", "syllables": 2}
+const initialMap = {}
+const word = {"text": "hobbit", "definition": "from the Shire", "syllables": 2}
+initialMap.hobbit = word
+const initialState = initialMap; 
 
 const wordsSlice = createSlice({
 	name: 'words', 
@@ -11,7 +11,7 @@ const wordsSlice = createSlice({
 	reducers: {
 		wordAdded: {
 			reducer(state, action) {
-				state.wordMap.set(action.payload.word, action.payload)
+				state[action.payload.word] = action.payload 
 			},
 			prepare(word, definition, syllables) {
 				return {
@@ -30,22 +30,17 @@ const wordsSlice = createSlice({
 		},
 		wordUpdated(state, action) {
 			const { word, definition, syllables } = action.payload
-			const existingWord = state.wordMap.get(word)
+			const existingWord = state[word]
 			if (existingWord) {
 				existingWord.definition = definition
 				existingWord.syllables = syllables
 			}
-			state.wordMap.set(word, existingWord)
-		},
-		currentWordUpdated(state, action) {
-			const word = action.payload
-			console.log(`updating currentWord to ${JSON.stringify(word)}`);
-			state.currentWord = word
+			state[word] = existingWord
 		}
 	}
 })
 
-export const { wordAdded, wordUpdated, currentWordUpdated } = wordsSlice.actions
+export const { wordAdded, wordUpdated } = wordsSlice.actions
 
 export default wordsSlice.reducer
 

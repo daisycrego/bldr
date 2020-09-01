@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { wordAdded, wordUpdated, currentWordUpdated } from '../words/wordSlice'
+import { wordAdded, wordUpdated } from '../words/wordSlice'
+import { currentWordUpdated } from '../currentWord/currentWordSlice'
 import { poemAdded, poemUpdated, poemReset } from './poemSlice'
 import { CurrentWord } from '../../app/CurrentWord'
 
@@ -147,7 +148,7 @@ export const Poem = ({ match }) => {
 
   return (
     <React.Fragment>
-      <div className="poemBuilder">
+      <div className="poemBuilder row">
         <div className="poem"> 
           <div className="row">
             <div className="title">

@@ -515,9 +515,8 @@ ReactDOM.render(
 - Forked the github: https://github.com/daisycrego/redux-essentials-example-app
 - Using a clone of that fork as the basis for `Documents/builderVersions/bldr_v2`
 
-
-
-
+# Async Logic
+- Docs [here](https://redux.js.org/tutorials/essentials/part-5-async-logic)
 
 
 

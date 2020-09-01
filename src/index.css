@@ -10,7 +10,7 @@ body {
 
 #root {
 	display: grid;
-	grid-template-columns: 2fr 1fr;
+	grid-template-columns: 2fr auto;
 }
 
 div.relax {
@@ -177,6 +177,7 @@ div.currentWord {
 	padding: .25em;
 	margin-top: .5em;
 	margin-left: .25em;
+	margin-right: 0;
 
 	display: grid;
 }

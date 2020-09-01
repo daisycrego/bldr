@@ -822,8 +822,18 @@ continueUpdate = (displayWarning, updateSyllables=true, updateDefinition=true) =
 # Redux
 - See [Redux notes](redux.md). 
 
-# NTS
-- The current version, `Documents/builder`, which I am about to convert to Redux, is incorrect. I think there are multiple instances of mutating state, and that could be a source of some of the issues. But, I'm implementing Redux anyway, in `Documents/builderVersions/bldr_v0`, so I won't come back to this repo and fix things, for now. Food for thought. 
+# More Redux
+### 1 September 2020
+- Reviewed the basics of redux, but still need to learn thunks before I can bring over the full functionality of the previous implementation without redux. 
+- The CurrentWord feature has almost been added in, but it won't switch between words, and that's because currently it relies on the result of a fetch to display anything. It shouldn't do this. It should display the current word immediately, and then any more data as it becomes available:
+
+![current blr](imgs/current_bldr.png)
+
+# Next Goals
+- Add users
+- Add public/private status for poems
+- Add "reactions" (https://redux.js.org/tutorials/essentials/part-4-using-data#post-reaction-buttons) to public poems 
+
 
 ---
 
