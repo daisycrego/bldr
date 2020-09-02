@@ -518,18 +518,137 @@ ReactDOM.render(
 # Async Logic
 - Docs [here](https://redux.js.org/tutorials/essentials/part-5-async-logic)
 
+## Async Logic and Data Fetching
+- To add async logic, you need to add Redux middleware to extend the store. 
+- There are multiple kinds of async middleware for Redux, and each lets you write your logic using different syntax. 
+- The most common async middleware is `redux-thunk`. RTK's `configureStore` function automatically sets up the thunk middleware by default. 
 
+### Thunk Functions
+- Thunk functions can be passed directly to `store.dispatch`. 
+- A thunk gets 2 arguments: `(dispatch, getState)`
+- Thunks typically dispatch plain actions using action creators, like `dispatch(increment())`:
+```javascript
+const store = configureStore({ reducer: counterReducer })
+const exampleThunkFunction = (dispatch, getState) => {
+	const stateBefore = getState()
+	console.log(`Counter before: ${stateBefore.counter}`)
+	dispatch(increment())
+	const stateAfter = getState()
+	console.log(`Counter after: ${stateAfter.counter}`)
+}
 
+store.dispatch(exampleThunkFunction)
+```
+- **For consistency with dispatching normal action objects, we typically write these as **thunk action creators**, which return the thunk function. These action creators can take arguments that can be used inside the thunk. 
+```javascript
+const logAndAdd = amount => {
+	return (dispatch, getState) => {
+		const stateBefore = getState()
+		console.log(`Counter before: ${stateBefore.counter}`)
+		dispatch(increment())
+		const stateAfter = getState()
+		console.log(`Counter after: ${stateAfter.counter}`)
+	}
+}
 
+store.dispatch(logAndAdd(5))
+```
+- Thunks are typically **written in slice files**, where the other action creators are already defined. But the thunks should be written outside of `createSlice` as separate functions. 
+- Thunks may have async logic inside them, including `setTimeout`, `Promise`s, and `async/await`.  
 
+### Loading Posts
+- 4 states of an API call: 
+	1. The request hasn't started
+	2. The request is in progress
+	3. The request succeeeded, data is returned
+	4. The request failed, error message returned
+- This state can be tracked using an enum like this: 
+```javascript
+{
+	state: 'idle' | 'loading' | 'succeeded' | 'failed',
+	error: string | null
+}
+```
+- We can use this information to decide what to show in the UI as the request progresses, and add logic to our reducers to prevent cases like loading data twice.
 
+### Fetching Data with `createAsyncThunk`
+- RTK's `createAsyncThunk` API generates thunks that automatically dispatch these `start/success/failure` actions for you. 
 
+1. Let's start by adding a thunk that will make an AJAX call to retrieve a list of posts. We'll import the client utility from the src/api folder, and use that to make a request to '/fakeApi/posts':
+```javascript
+// postsSlice
+import { createSlice, nanoid, createAsyncThunk } from '@reduxjs/toolkit'
+import { client } from '../../api/client'
 
+const initialState = {
+  posts: [],
+  status: 'idle',
+  error: null
+}
 
+export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
+  const response = await client.get('/fakeApi/posts')
+  return response.posts
+})
+```
+- `createAsyncThunk` accepts 2 arguments:
+	1. A prefix string for the generated action types.
+	2. A "payload creator" callback function that should return a `Promise` containing some data, or a rejected `Promise` with an error. 
 
+2. Dispatch the `fetchPosts` Thunk from a Component (`PostsList`)
+```javascript
+import React, { useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+// omit other imports
+import { selectAllPosts, fetchPosts } from './postsSlice'
 
+export const PostsList = () => {
+  const dispatch = useDispatch()
+  const posts = useSelector(selectAllPosts)
 
+  const postStatus = useSelector(state => state.posts.status)
 
+  useEffect(() => {
+    if (postStatus === 'idle') {
+      dispatch(fetchPosts())
+    }
+  }, [postStatus, dispatch])
+
+  // omit rendering logic
+}
+```
+- **This approach allows us to only try to fetch the list of posts once**, rather than every time the `<PostsList>` component renders, or is re-created because we've switched between views. We can use the `posts.status` enum to decide if we need to actually start fetched by checking if the status is `idle`. 
+
+3. Handle loading actions in the reducers
+- We can define an `extraReducers` field along with a slice's `reducers` field in order to listen for the "pending" and "fulfilled" action types dispatched by the `fetchPosts` thunk. Those action creators are attached to the `fetchPost` function, and we can pass those to `extraReducers` to listen for those actions: 
+```javascript
+export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
+  const response = await client.get('/fakeApi/posts')
+  return response.posts
+})
+
+const postsSlice = createSlice({
+  name: 'posts',
+  initialState,
+  reducers: {
+    // omit existing reducers here
+  },
+  extraReducers: {
+    [fetchPosts.pending]: (state, action) => {
+      state.status = 'loading'
+    },
+    [fetchPosts.fulfilled]: (state, action) => {
+      state.status = 'succeeded'
+      // Add any fetched posts to the array
+      state.posts = state.posts.concat(action.payload)
+    },
+    [fetchPosts.rejected]: (state, action) => {
+      state.status = 'failed'
+      state.error = action.error.message
+    }
+  }
+})
+```
 
 
 

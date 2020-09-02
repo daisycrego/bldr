@@ -3,18 +3,20 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { wordAdded, wordUpdated } from '../words/wordSlice'
 import { currentWordUpdated } from '../currentWord/currentWordSlice'
-import { poemAdded, poemUpdated, poemReset } from './poemSlice'
+import { poemAdded, poemUpdated, poemReset, selectPoemById } from './poemSlice'
 import { CurrentWord } from '../../app/CurrentWord'
 
 export const Poem = ({ match }) => {
+
   const { poemId } = match.params
+  console.log(`poemId: ${poemId}`)
 
-  const poem = useSelector(state =>
-    state.poems.find(poem => poem.id === poemId)
-  )
+  const userId = useSelector(state => state.users.activeUserId)
 
-  const [title, setTitle] = useState(poem.title)
-  const [lines, setLines] = useState(poem.lines)
+  const poem = useSelector(state => selectPoemById(state, poemId))
+
+  const [title, setTitle] = useState(poem ? poem.title : '')
+  const [lines, setLines] = useState(poem ? poem.lines : '')
 
   const dispatch = useDispatch()
   const history = useHistory()
@@ -27,9 +29,9 @@ export const Poem = ({ match }) => {
     )
   }
 
-  const syllableCounts = poem.syllableCounts; 
-  const syllableLimits = poem.syllableLimits; 
-  const placeholders = poem.placeholders; 
+  const syllableCounts = poem.syllableCounts ? poem.syllableCounts : [0, 0, 0]; 
+  const syllableLimits = poem.syllableLimits ? poem.syllableLimits: [5, 7, 5]; 
+  const placeholders = poem.placeholders ? poem.placeholders :  ["haikus are easy", "but sometimes they don't make sense", "refrigerator"]; 
 
   const onTitleChanged = e => setTitle(e.target.value)
 
@@ -41,7 +43,7 @@ export const Poem = ({ match }) => {
 
   const onCreatePoemClicked = () => {
     onSavePoemClicked()
-    dispatch(poemAdded())
+    dispatch(poemAdded(userId))
   }
 
   const onResetPoemClicked = () => {
@@ -53,14 +55,9 @@ export const Poem = ({ match }) => {
   }
 
   const handleLineChange = (e, lineNum) => {
-    console.log(`handleLineChange, lineNum: ${lineNum}`)
     const newLine = e.target.value;
-    console.log(`newLine: ${newLine}`); 
-    console.log(`lines: ${lines}`);
     let newLines = [...lines]
-    console.log(`newLines before: ${newLines}`)
     newLines[lineNum] = newLine; 
-    console.log(`newLines after: ${newLines}`)
     setLines(newLines)
 
     // save original cursor position
@@ -102,7 +99,6 @@ export const Poem = ({ match }) => {
   }
 
   const handlePoemClick = (e, lineNum) => {      
-    console.log(`handlePoemClick`)
     // https://stackoverflow.com/questions/7563169/detect-which-word-has-been-clicked-on-within-a-text
     var word = '';
     let selection = window.getSelection().modify;
@@ -132,6 +128,8 @@ export const Poem = ({ match }) => {
     
     //this.setState({currentLine: lineNumber});
   };
+
+
 
   const linesRendered = lines.map((line, lineNum) => 
     <span key={`line_${lineNum}`} className="line">

@@ -829,6 +829,11 @@ continueUpdate = (displayWarning, updateSyllables=true, updateDefinition=true) =
 
 ![current blr](imgs/current_bldr.png)
 
+### Async Logic
+- Added first async logic to the redux implementation using thunks to trigger the fetching of poems. Also took a lot of great logic from the redux tutorial to handle the 4 different states of the promise made while fetching from the wordAPI within `extraReducers` using the `fetchPoems` reducer. I'm going to write similar reducers and extraReducers for the other data I want to fetch from the API (users, words), and soon enough, I'll have syllable counts running. Plus reactions! Also taken from the awesome amazing redux tutorial. I'll change to my own emoji's later, but for now, here is the LOADER which spins whenever poems data is being fetched: 
+![loader](imgs/loader1.gif)
+
+
 # Next Goals
 - Add users
 - Add public/private status for poems

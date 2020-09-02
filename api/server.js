@@ -30,6 +30,7 @@ app.use(cors());
 //app.use(express.json());
 //app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '..', 'build')));
+app.use(function(req,res,next){setTimeout(next,1000)}); // INTENTIONAL LATENCY :) 
 app.use('/wordAPI', wordAPIrouter);
 
 app.use((req, res, next) => {
