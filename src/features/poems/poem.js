@@ -61,8 +61,8 @@ export const Poem = ({ match }) => {
   const onTitleChanged = e => setTitle(e.target.value)
 
   const id = poem.id
-  const reactions = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-  //const reactions = poem.reactions ? poem.reactions : {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+  //const reactions = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+  const reactions = poem.reactions ? poem.reactions : {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
   const date = poem.date ? poem.date : ''
 
   const canSave =
@@ -99,8 +99,6 @@ export const Poem = ({ match }) => {
           addPoem({ id, title, lines, user: userId, syllableCounts, syllableLimits, date, reactions })
         )
         unwrapResult(resultAction)
-        setTitle('')
-        setLines(["", "", ""])
       } catch (err) {
         console.error('Failed to save the post: ', err)
       } finally {

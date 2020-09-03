@@ -41,6 +41,7 @@ const poemSlice = createSlice({
 				const syllableLimits = [5,7,5]
 				const syllableCounts = [0,0,0]
 				const placeholders = ["haikus are easy", "but sometimes they don't make sense", "refrigerator"]
+				const reactions = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
 				const valid = false
 				const id = nanoid()
 				if (!userId) { userId = "" }
@@ -57,7 +58,7 @@ const poemSlice = createSlice({
 						syllableLimits, 
 						syllableCounts, 
 						placeholders,
-						reactions: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+						reactions
 					}
 				}
 			}

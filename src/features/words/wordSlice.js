@@ -4,7 +4,7 @@ import { client } from '../../client'
 const initialMap = {}
 const initialState = {
 	currentWord: { 
-		word: '',
+		word: 'poem',
 		definition: null,
 		syllables: null
 	},
