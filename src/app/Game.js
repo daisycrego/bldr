@@ -14,10 +14,7 @@ import {
 } from 'react-router-dom'
 import { PoemList} from '../features/poems/poemList'
 import { Poem } from '../features/poems/poem'
-
-const production  = 'https://poem-builder.herokuapp.com';
-const development = 'http://localhost:5000';
-const url_base = (process.env.REACT_APP_ENVIRONMENT === 'development' ? development : production);
+import url_base from '../urls'
 
 const user_id ="a";
 

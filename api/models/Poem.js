@@ -7,10 +7,12 @@ var PoemSchema = new Schema (
 		user: { type: String },
 		title: { type: String },
 		lines: [String], 
-		linesEdit: [String],
-		lineCount: Number,
-		type: String, 
+		lineCount: Number, 
 		valid: Boolean, 
+		syllableCounts: [Number],
+		syllableLimits: [Number],
+		date: { type: Date },
+		reactions: Object
 	});
 
 module.exports = mongoose.model('Poem', PoemSchema);

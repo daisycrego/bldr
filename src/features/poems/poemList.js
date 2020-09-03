@@ -2,6 +2,8 @@ import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { selectAllPoems, fetchPoems } from './poemSlice'
+import { PoemAuthor } from './PoemAuthor'
+import { TimeAgo } from './TimeAgo'
 
 export const PoemList = () => {
 	const dispatch = useDispatch()
@@ -23,6 +25,8 @@ export const PoemList = () => {
 		content = poems.map(poem => (
 			<article key={poem.id}>
 			<h3>{poem.title}</h3>
+			<PoemAuthor userId={poem.user} />
+			<TimeAgo timestamp={poem.date} />
 			{poem.lines.map((line, index) => <p key={`${poem.id}_${index}`}>{line}</p>)}
 			<Link to={`/poems/${poem.id}`}>
 				View Poem 

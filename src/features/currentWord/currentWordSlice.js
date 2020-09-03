@@ -1,27 +1,94 @@
-import { createSlice, nanoid } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, nanoid } from '@reduxjs/toolkit'
+import { client } from '../../client'
 
-const word = {"text": "hobbit", "definition": "from the Shire", "syllables": 2}
-const initialState = word; 
+const initialMap = {}
+const initialState = {
+	word: { 
+		word: '',
+		definition: null,
+		syllables: null
+	},
+	words: initialMap,
+	status: 'idle', 
+	error: null
+}; 
 
-const currentWordSlice = createSlice({
-	name: 'currentWord', 
+export const fetchWord = createAsyncThunk('currentWord/fetchWord', 
+	async (word) => {
+		console.log(`sending GET request with ${word}`)
+		const response = await client.get(`wordAPI/${word}`)
+		console.log(`fetchWord returned this:`)
+		console.log(response)
+		return response
+	}
+)
+
+const wordSlice = createSlice({
+	name: 'words', 
 	initialState, 
 	reducers: {
 		currentWordUpdated(state, action) {
-			const word = action.payload
-			state = {
-				text: word, 
-				syllables: 0,
-				definition: "tbd"
+			console.log(`currentWordUpdated: setting wordName to ${action.payload}, then calling fetchWord to get the rest of the data`)
+			state.word.word = action.payload
+			state.word.syllables = 0
+			state.word.definition = ""
+			state.status = 'idle'
+			fetchWord(action.payload)
+		},
+		wordAdded: {
+			reducer(state, action) {
+				state.words[action.payload.word] = action.payload 
+			},
+			prepare(word) {
+				return {
+					payload: {
+						word: word["word"],
+						definition: word.definition, 
+						syllables: word.syllables,
+						updated: false,
+						original: { 
+							word["word"],
+							word.definition,
+							word.syllables
+						}
+					}
+				}
 			}
-			console.log(JSON.stringify(state))
+		},
+		wordUpdated(state, action) {
+			const { word, definition, syllables } = action.payload
+			const existingWord = state.words[word]
+			if (existingWord) {
+				existingWord.definition = definition
+				existingWord.syllables = syllables
+				existingWord.updated = true
+			}
+			state.words[word] = existingWord
+		}
+	},
+	extraReducers: {
+		[fetchWord.pending]: (state, action) => {
+			console.log(`fetch loading`)
+			state.status='loading'
+		},
+		[fetchWord.fulfilled]: (state, action) => {
+			console.log(`fetch succeeded`)
+			console.log(`action.payload: ${JSON.stringify(action.payload)}`)
+			state.status = 'succeeded'
+			state.word.word = state.word.word
+			state.word.syllables = action.payload.syllables; 
+			state.word.definition = action.payload.definition; 
+		},
+		[fetchWord.rejected] : (state, action) => {
+			state.status = 'failed'
+			state.error = action.error.message
 		}
 	}
 })
 
-export const { currentWordUpdated } = currentWordSlice.actions
+export const { currentWordUpdated, wordAdded, wordUpdated } = wordSlice.actions
 
-export default currentWordSlice.reducer
+export default wordSlice.reducer
 
 
 

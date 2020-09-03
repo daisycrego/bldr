@@ -69,10 +69,12 @@ router.get('/poem/:user', function(request, response, next) {
 router.post('/poem', jsonParser, function(request, response, next) {
 	console.log("wordAPI -> POST request, updating a poem");
 	const poem = request.body; 
-	if (!poem) { return; }
+	console.log(poem)
+	if (!poem) { return response.send('No poem found'); }
 	Poem.updateOne({'id': poem.id}, poem, { upsert: true }, function(error, doc) {
 		if (error) { next(err); }
-		return response.send('Successfully saved.');
+		console.log(`poem successfully updating, returning response`)
+		return response.send(poem);
 	});
 });
 
@@ -80,15 +82,16 @@ router.post('/update', function(request, response, next) {
 	var wordQuery = { word: request.params.word };
 	var newValues = { syllables: request.params.syllables, definition: request.params.definition };
 	Word.updateOne(wordQuery, newValues, function(err, results) {
-		if (err) { return next(err); }
+		if (err) { next(err); }
 		if (results) {
-			response.send(results); 
+			return response.send(results); 
 		}
 	});
 	// should also update the word in state...
 });
 
 router.get('/:word', function(request, response, next) {
+	console.log(`wordAPI --> getting a WORD`)
 	// check if the word is stored already in the word history cache - if it is, don't bother looking it up
 	// create a word object for the word and assign it to the word history cache - for now, there is 
 	// just one user, but in the future each user will have their own history cache and there

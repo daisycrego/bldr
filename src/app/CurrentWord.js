@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
+import { fetchWord } from '../features/words/wordSlice'
 
 import TextareaAutosize from 'react-textarea-autosize'
 
@@ -11,34 +12,46 @@ export const CurrentWord = () => {
 	
 	const dispatch = useDispatch()
 
-	const existingWord = useSelector(state => state.currentWord)
+	const currentWord = useSelector(state => state.words.currentWord)
+	const loadingStatus = useSelector(state => state.words.status)
+	const error = useSelector(state => state.words.error)
 
-	console.log(`existingWord: ${JSON.stringify(existingWord)}`)
-
-	const [currentWord, setCurrentWord] = useState(existingWord)
-
-	console.log(`currentWord: ${currentWord}`)
-
+	if (loadingStatus === 'idle') {
+		if (currentWord["word"]) { 
+			dispatch(fetchWord(currentWord["word"]))
+		}
+	}
 	const syllableCount = currentWord ? currentWord.syllables : 0;
 
 	return (
 		<React.Fragment>
 			<div className="currentWord">
 				<h1 className="currentWordDisplay">
-				{currentWord ? currentWord.text : ''}
+				{currentWord ? currentWord["word"] : ''}
 				</h1>
-				
+			
+			
 			<span className="currentWordSyllables">
-				<TextareaAutosize 
+				{(loadingStatus === 'loading') ?
+					<div className="loader">Loading</div>
+				 :
+				 	<React.Fragment>
+				 	<TextareaAutosize 
 					className="currentWordSyllableCount" 
-					value={syllableCount}
-				/>
-				
-				<textarea 
+					value={syllableCount}/>
+
+					<textarea 
 					className="currentWordSyllableText" 
 					disabled 
 					value={` syllable${(syllableCount > 1 || syllableCount === 0) ? "s" : ""}`}
-				/>
+					/>
+					</React.Fragment>
+			 	}
+			 	{(loadingStatus === 'failed') ? 
+
+			 		<div>{error}</div> : null
+
+			 	}
 			</span>
 			
 			{displaySyllableUpdate ? 
@@ -47,11 +60,17 @@ export const CurrentWord = () => {
 					<button value="Cancel"/>
 				</React.Fragment>
 			: null}
-					 
-			<TextareaAutosize 
+			
+
+			{(loadingStatus === 'loading') ?
+				<div className="loader">Loading</div>
+				:
+				<TextareaAutosize 
 				className="currentDefinition" 
 				value={currentWord ? currentWord.definition : ''}
-			/> 
+				/> 
+
+			}
 				
 			{displayDefinitionUpdate ? 
 				<React.Fragment>

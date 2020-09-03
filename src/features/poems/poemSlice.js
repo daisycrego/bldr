@@ -8,7 +8,15 @@ const initialState = {
 	error: null
 }
 
-export const fetchPoems = createAsyncThunk('posts/fetchPoems', async () => {
+export const addPoem = createAsyncThunk(
+	'poems/addPoem', 
+	async initialPoem => {
+		const response = await client.post(`/wordAPI/poem/`, initialPoem)
+		return response
+	}
+)
+
+export const fetchPoems = createAsyncThunk('poems/fetchPoems', async () => {
 	//let activeUser = useSelector(state => state.users.activeUser)
 
 	let activeUser
@@ -18,7 +26,6 @@ export const fetchPoems = createAsyncThunk('posts/fetchPoems', async () => {
 	}
 
 	const response = await client.get(`wordAPI/poem/${activeUser}`)
-	console.log(response)
 	return response
 })
 
@@ -62,10 +69,11 @@ const poemSlice = createSlice({
 				existingPoem.title = title
 				existingPoem.lines = lines
 			}
+			console.log(`saving poem, invoking addPoem async method`)
+			addPoem(existingPoem)
 		},
 		poemReset(state, action) {
 			const id = action.payload
-			console.log(`poemReset, id: ${JSON.stringify(id)}`) 
 			const existingPoem = state.poems.find(poem => poem.id === id) 
 			if (existingPoem) {
 				existingPoem.syllableCounts = [0,0,0]
@@ -75,7 +83,7 @@ const poemSlice = createSlice({
 		},
 		reactionAdded(state, action) {
 			const { poemId, reaction } = action.payload
-			const existingPoem = state.poems.poems.find(poem => poem.id === poemId)
+			const existingPoem = state.poems.find(poem => poem.id === poemId)
 			if (existingPoem) {
 				existingPoem.reactions[reaction]++
 			}
@@ -92,6 +100,14 @@ const poemSlice = createSlice({
 		[fetchPoems.rejected]: (state, action) => {
 			state.status = 'failed'
 			state.error = action.error.message
+		},
+		[addPoem.fulfilled]: (state, action) => {
+			console.log(`action.payload: ${JSON.stringify(action.payload)}`)
+			var removeIndex = state.poems.map(item => item.id).indexOf(action.payload.id);
+			~removeIndex && state.poems.splice(removeIndex, 1)
+			//state.poems = state.poems.filter(poem => poem.id !== action.payload.id)
+			state.poems.push(action.payload)
+			console.log(`addedPoem fulfilled: ${JSON.stringify(state.poems)}`)
 		}
 	}
 })
