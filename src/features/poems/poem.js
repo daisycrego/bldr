@@ -61,7 +61,8 @@ export const Poem = ({ match }) => {
   const onTitleChanged = e => setTitle(e.target.value)
 
   const id = poem.id
-  const reactions = poem.reactions ? poem.reactions : {thumbsUp: 0, hooray: 0, heart: 0, rocket: 0, eyes: 0}
+  const reactions = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+  //const reactions = poem.reactions ? poem.reactions : {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
   const date = poem.date ? poem.date : ''
 
   const canSave =

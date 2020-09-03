@@ -57,7 +57,7 @@ const poemSlice = createSlice({
 						syllableLimits, 
 						syllableCounts, 
 						placeholders,
-						reactions: {thumbsUp: 0, hooray: 0, heart: 0, rocket: 0, eyes: 0}
+						reactions: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
 					}
 				}
 			}

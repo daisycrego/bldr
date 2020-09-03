@@ -3,12 +3,13 @@ import { useDispatch } from 'react-redux'
 import { reactionAdded } from './poemSlice'
 
 const reactionEmoji = {
-  thumbsUp: '👍',
-  hooray: '🎉',
-  heart: '❤️',
-  rocket: '🚀',
-  eyes: '👀'
+  1: '🥶',
+  2: '😨',
+  3: '😰',
+  4: '😱',
+  5: '🤯'
 }
+
 
 export const ReactionButtons = ({ poem }) => {
 	const dispatch = useDispatch()
