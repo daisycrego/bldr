@@ -11,7 +11,7 @@ import { ReactionButtons } from './ReactionButtons'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 export const Poem = ({ match }) => {
-
+  console.log(`Poem rendering`)
   const { poemId } = match.params
 
   const userId = useSelector(state => state.users.activeUserId)
@@ -37,18 +37,25 @@ export const Poem = ({ match }) => {
 
   // calculating the syllable counts
 
-  const syllableCounts = lines.map(line => {
+  let syllableCounts = poem.syllableCounts
+
+  if (syllableCounts.length) {
+    console.log(`setting syllableCounts to ${poem.syllableCounts}`)
+    syllableCounts = poem.syllableCounts
+  } else {
+    console.log(`recalculating syllableCounts`)
+    syllableCounts = lines.map(line => {
     if (!line) { return 0; }
     const words = line.split(" ")
     const total = words.reduce((runningTotal, currentWord) => {
       return runningTotal += (wordMap[currentWord] ? wordMap[currentWord]["syllables"] : 0)
     }, 0)
     return total
-    }
-  )
+    })
+  }
 
   //const syllableCounts = poem.syllableCounts ? poem.syllableCounts : [0, 0, 0]; 
-  const syllableLimits = poem.syllableLimits ? poem.syllableLimits: [5, 7, 5]; 
+  const syllableLimits = poem.syllableLimits; 
   const placeholders = poem.placeholders ? poem.placeholders :  ["haikus are easy", "but sometimes they don't make sense", "refrigerator"]; 
 
   const onTitleChanged = e => setTitle(e.target.value)
