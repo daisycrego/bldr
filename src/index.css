@@ -13,6 +13,11 @@ body {
 	grid-template-columns: 2fr auto;
 }
 
+article {
+	width: fit-content;
+    outline-style: solid;
+}
+
 div.relax {
 	grid-row-start: 2;
 	grid-row-end: 3;
@@ -21,6 +26,15 @@ div.relax {
 	display:inline-flex;
 	align-items: center;
 	justify-content: center;
+}
+
+div.reactionButtons {
+	display: flex;
+	justify-content: center;
+}
+
+div.reactionButtons > button {
+	width: 100%;
 }
 
 div.help {
@@ -85,6 +99,7 @@ div.poem {
 
 	display: grid;
 	padding: .25em;
+	border:solid;
 }
 
 h2.title {
@@ -172,10 +187,11 @@ div.currentWord {
 	grid-column-end: 3;
 	grid-row-start: 2;
 	grid-row-end: 3;
-	outline: dashed;
+	outline: solid;
 	font-size: inherit;
 	padding: .25em;
-	margin-top: .5em;
+	margin-top: .1em;
+	margin-bottom: .1em;
 	margin-left: .25em;
 	margin-right: 0;
 

@@ -3,6 +3,7 @@ import { client } from '../../client'
 import { useSelector } from 'react-redux'
 
 const initialState = {
+	activePoem: null,
 	poems: [],
 	status: 'idle', 
 	error: null
@@ -27,6 +28,17 @@ export const fetchPoems = createAsyncThunk('poems/fetchPoems', async () => {
 
 	const response = await client.get(`wordAPI/poem/${activeUser}`)
 	return response
+})
+
+export const fetchActivePoem = createAsyncThunk('poems/fetchActivePoem', async () => {
+	let activeUser
+	if (!activeUser) {
+		console.log(`no active user found, defaulting to a`)
+		activeUser = "a"
+	}
+	const response = await client.get(`wordAPI/poem/${activeUser}`)
+	console.log(response)
+	return response.length ? response[0] : null
 })
 
 const poemSlice = createSlice({
@@ -109,6 +121,10 @@ const poemSlice = createSlice({
 			//state.poems = state.poems.filter(poem => poem.id !== action.payload.id)
 			state.poems.push(action.payload)
 			console.log(`addedPoem fulfilled: ${JSON.stringify(state.poems)}`)
+		},
+		[fetchActivePoem.fulfilled]: (state, action) => {
+			state.activePoem = action.payload
+			console.log(`fetchActivePoem fulfilled: ${JSON.stringify(state.activePoem)}`)
 		}
 	}
 })
@@ -121,4 +137,9 @@ export const selectAllPoems = state => state.poems.poems
 
 export const selectPoemById = (state, poemId) => {
 	return state.poems.poems.find(poem => poem.id === poemId)
+}
+
+// placeholder for more active poem logic later on
+export const selectActivePoem = (state) => {
+	return state.poems.activePoem
 }

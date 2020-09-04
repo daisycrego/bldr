@@ -19,6 +19,7 @@ export const ReactionButtons = ({ poem }) => {
 	}
 
 	const reactionButtons = Object.entries(reactionEmoji).map(([name, emoji]) => {
+		const buttonContent = [emoji, <br/>, poem.reactions[name]]
 		return (
 		  <button 
 		  	key={name} 
@@ -26,10 +27,10 @@ export const ReactionButtons = ({ poem }) => {
 		  	className="muted-button reaction-button"
 		  	onClick={ () => dispatch(reactionAdded({ poemId: poem.id, reaction: name })) }
 		  >
-		    	{emoji} {poem.reactions[name]}
+		    	{buttonContent}
 		  </button>
 		)
 	})
 
-  return <div>{reactionButtons}</div>
+  return <div className="reactionButtons">{reactionButtons}</div>
 }

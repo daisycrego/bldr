@@ -31,7 +31,7 @@ function Game () {
 						path="/"
 						render={() => (
 							<React.Fragment>
-								<PoemList/>
+								<Poem/>
 							</React.Fragment>
 						)}
 					/>
@@ -43,6 +43,16 @@ function Game () {
 								<PoemList/>
 							</React.Fragment>
 						)}
+					/>
+					<Route
+						exact
+						path="/relax"
+						component={SelfDestruct}
+					/>
+					<Route
+						exact="/help"
+						path="/help"
+						component={Help}
 					/>
 					<Route exact path="/poems/:poemId" component={Poem}/>
 					<Redirect to="/"/>

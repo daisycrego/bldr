@@ -3,29 +3,41 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { wordAdded, wordUpdated } from '../words/wordSlice'
 import { currentWordUpdated, fetchWord } from '../words/wordSlice'
-import { poemAdded, poemUpdated, poemReset, selectPoemById, addPoem } from './poemSlice'
+import { poemAdded, poemUpdated, poemReset, selectPoemById, selectActivePoem, addPoem } from './poemSlice'
 import { CurrentWord } from '../../app/CurrentWord'
 import { PoemAuthor } from './PoemAuthor'
 import { TimeNow } from './TimeNow'
 import { ReactionButtons } from './ReactionButtons'
 import { unwrapResult } from '@reduxjs/toolkit'
 
-export const Poem = ({ match }) => {
+export const Poem = ({ match=null }) => {
+
   console.log(`Poem rendering`)
-  const { poemId } = match.params
 
+  let poemId = ''
+  let selector
+  if (match) {
+    poemId = match.params.poemId
+    selector = state => selectPoemById(state, poemId)
+  } else {
+    selector = selectActivePoem
+    console.log(`selecting the active poem`)
+  }
+  
   const userId = useSelector(state => state.users.activeUserId)
-
-  const poem = useSelector(state => selectPoemById(state, poemId))
+  
+  const poem = useSelector(selector)
+  console.log(`poem: ${JSON.stringify(poem)}`)
+  //poem = useSelector(state => selectPoemById(state, poemId))
 
   const wordMap = useSelector(state => state.words.words) 
 
-  const [title, setTitle] = useState(poem ? poem.title : '')
-  const [lines, setLines] = useState(poem ? poem.lines : '')
-  const [addRequestStatus, setAddRequestStatus] = useState('idle')
-
   const dispatch = useDispatch()
   const history = useHistory()
+
+  const [addRequestStatus, setAddRequestStatus] = useState('idle')
+  const [title, setTitle] = useState(poem ? poem.title : '')
+  const [lines, setLines] = useState(poem ? poem.lines : '')
 
   if (!poem) {
     return (
