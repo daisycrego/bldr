@@ -8,7 +8,7 @@ import { TimeAgo } from './TimeAgo'
 export const PoemList = () => {
 	const dispatch = useDispatch()
 	const poems = useSelector(selectAllPoems)
-	const poemStatus = useSelector(state => state.poems.status)
+	const poemStatus = useSelector(state => state.poems.listStatus)
 	const error = useSelector(state => state.poems.error)
 
 	useEffect(() => {
@@ -22,6 +22,7 @@ export const PoemList = () => {
 	if (poemStatus === 'loading') {
 		content = <div className="loader">Loading</div>
 	} else if (poemStatus === 'succeeded') {
+		console.log(`poems in PoemList: ${JSON.stringify(poems)}`)
 		content = poems.map(poem => (
 			<article key={poem.id}>
 			<h3>{poem.title}</h3>

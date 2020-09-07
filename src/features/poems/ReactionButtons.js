@@ -14,7 +14,7 @@ const reactionEmoji = {
 export const ReactionButtons = ({ poem }) => {
 	const dispatch = useDispatch()
 
-	if (!poem.reactions) {
+	if (!poem || !poem.reactions) {
 		return null
 	}
 

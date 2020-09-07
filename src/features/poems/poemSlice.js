@@ -5,8 +5,10 @@ import { useSelector } from 'react-redux'
 const initialState = {
 	activePoem: null,
 	poems: [],
-	status: 'idle', 
-	error: null
+	listStatus: 'idle', 
+	listError: null,
+	activePoemStatus: 'idle',
+	activePoemError: null,
 }
 
 export const addPoem = createAsyncThunk(
@@ -134,15 +136,16 @@ const poemSlice = createSlice({
 	},
 	extraReducers: {
 		[fetchPoems.pending]: (state, action) => {
-			state.status='loading'
+			state.listStatus='loading'
 		},
 		[fetchPoems.fulfilled]: (state, action) => {
-			state.status = 'succeeded'
+			state.listStatus = 'succeeded'
+			console.log(`action.payload: ${JSON.stringify(action.payload)}`)
 			state.poems = state.poems.concat(action.payload)
 		},
 		[fetchPoems.rejected]: (state, action) => {
-			state.status = 'failed'
-			state.error = action.error.message
+			state.listStatus = 'failed'
+			state.listError = action.error.message
 		},
 		[addPoem.fulfilled]: (state, action) => {
 			var removeIndex = state.poems.map(item => item.id).indexOf(action.payload.id);
@@ -156,13 +159,12 @@ const poemSlice = createSlice({
 				addPoem(action.payload)
 			} else {
 				state.activePoem = action.payload
-				state.status = 'succeeded'
+				state.activePoemStatus = 'succeeded'
 			}
-			
 		},
 		[fetchPoemById.fulfilled]: (state, action) => {
 			state.activePoem = action.payload
-			state.status = 'succeeded'
+			state.activePoemStatus = 'succeeded'
 		}
 	}
 })

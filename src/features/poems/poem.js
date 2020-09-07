@@ -16,7 +16,7 @@ export const Poem = ({ match=null }) => {
 
   let poem = useSelector(state => state.poems.activePoem)
   const poems = useSelector(state => state.poems.poems)
-  const poemStatus = useSelector(state => state.poems.status)
+  const poemStatus = useSelector(state => state.poems.activePoemStatus)
   const error = useSelector(state => state.poems.error)
   const [title, setTitle] = useState(poem ? poem.title : '')
   const [lines, setLines] = useState(poem ? poem.lines : ["", "", ""])
@@ -27,9 +27,13 @@ export const Poem = ({ match=null }) => {
   let id = poem && poem.id ? poem.id : id
   let reactions = poem && poem.reactions ? poem.reactions : {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
   let date = poem && poem.date ? poem.date :  ''
-  let canSave = [id, title, lines, userId, syllableLimits, syllableCounts, reactions, placeholders].every(Boolean) && addRequestStatus === 'idle'
-
   const userId = useSelector(state => state.users.activeUserId)
+
+  let canSave = false; 
+  //[id, title, lines, userId, syllableLimits, syllableCounts, reactions, placeholders].every(Boolean) && addRequestStatus === 'idle'
+  console.log(`canSave initial: ${canSave}`)
+
+  
   const wordMap = useSelector(state => state.words.words) 
   const [addRequestStatus, setAddRequestStatus] = useState('idle')
 
@@ -54,6 +58,10 @@ export const Poem = ({ match=null }) => {
   let content
 
   const onSaveAndCreatePoemClicked = async () => {
+    console.log(`addRequestStatus: ${addRequestStatus}, id: ${id}, title: ${title}, lines: ${lines}, userId: ${userId}, syllableLimits: ${syllableLimits}, syllableCounts: ${syllableCounts}, reactions: ${reactions}, placeholders: ${placeholders}`)
+    canSave = [id, title, lines, userId, syllableLimits, syllableCounts, reactions, placeholders].every(Boolean) && addRequestStatus === 'idle'
+    console.log(`onSavePoemClicked: canSave: ${canSave}`)
+
     if (canSave) {
       try {
         setAddRequestStatus('pending')
@@ -76,6 +84,10 @@ export const Poem = ({ match=null }) => {
   }
 
   const onSavePoemClicked = async () => {
+    console.log(`addRequestStatus: ${addRequestStatus}, id: ${id}, title: ${title}, lines: ${lines}, userId: ${userId}, syllableLimits: ${syllableLimits}, syllableCounts: ${syllableCounts}, reactions: ${reactions}, placeholders: ${placeholders}`)
+    canSave = [id, title, lines, userId, syllableLimits, syllableCounts, reactions, placeholders].every(Boolean) && addRequestStatus === 'idle'
+    console.log(`onSavePoemClicked: canSave: ${canSave}`)
+
     if (canSave) {
       try {
         setAddRequestStatus('pending')
@@ -189,8 +201,9 @@ export const Poem = ({ match=null }) => {
     id = poem && poem.id ? poem.id : id
     reactions = poem && poem.reactions ? poem.reactions : reactions
     date = poem && poem.date ? poem.date :  date
-    canSave =
-    [id, title, lines, userId, syllableLimits, syllableCounts, reactions, placeholders].every(Boolean) && addRequestStatus === 'idle'
+    //canSave =
+    //[id, title, lines, userId, syllableLimits, syllableCounts, reactions, placeholders].every(Boolean) && addRequestStatus === 'idle'
+    //console.log(`canSave after poem loaded: ${canSave}`)
 
     // calculating the syllable counts
     syllableCounts = poem && poem.syllableCounts ? poem.syllableCounts : syllableCounts
