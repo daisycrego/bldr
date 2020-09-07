@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { wordAdded, wordUpdated } from '../words/wordSlice'
 import { currentWordUpdated, fetchWord } from '../words/wordSlice'
-import { poemAdded, poemUpdated, poemReset, selectPoemById, addPoem, selectAllPoems, fetchPoems, fetchActivePoem, fetchPoemById, selectActivePoem } from './poemSlice'
+import { poemAdded, poemUpdated, poemReset, selectPoemById, addPoem, selectAllPoems, fetchPoems, fetchActivePoem } from './poemSlice'
 import { CurrentWord } from '../../app/CurrentWord'
 import { PoemAuthor } from './PoemAuthor'
 import { TimeNow } from './TimeNow'
@@ -11,47 +11,37 @@ import { ReactionButtons } from './ReactionButtons'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 export const Poem = ({ match=null }) => {
-  const dispatch = useDispatch()
-  const history = useHistory()
+  
+  
 
-  let poem = useSelector(state => state.poems.activePoem)
-  const poems = useSelector(state => state.poems.poems)
-  const poemStatus = useSelector(state => state.poems.status)
-  const error = useSelector(state => state.poems.error)
-  const [title, setTitle] = useState(poem ? poem.title : '')
-  const [lines, setLines] = useState(poem ? poem.lines : ["", "", ""])
-  const onTitleChanged = e => setTitle(e.target.value)
-  let syllableLimits = poem && poem.syllableLimits ? poem.syllableLimits : [5,7,5] 
-  let syllableCounts = poem && poem.syllableCounts ? poem.syllableCounts : [0,0,0]
-  let placeholders = poem && poem.placeholders ? poem.placeholders : ["haikus are easy", "but sometimes they don't make sense", "refrigerator"]
-  let id = poem && poem.id ? poem.id : id
-  let reactions = poem && poem.reactions ? poem.reactions : {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-  let date = poem && poem.date ? poem.date :  ''
-  let canSave = [id, title, lines, userId, syllableLimits, syllableCounts, reactions, placeholders].every(Boolean) && addRequestStatus === 'idle'
-
-  const userId = useSelector(state => state.users.activeUserId)
-  const wordMap = useSelector(state => state.words.words) 
-  const [addRequestStatus, setAddRequestStatus] = useState('idle')
-
-  let fetchActive = false
   let poemId
   if (match) {
     poemId = match.params.poemId
   } else {
-    fetchActive = true
+    fetchActivePoem = true
     poemId = null
   }
 
+  let poem
+  const [title, setTitle] = useState(poem ? poem.title : '')
+  const [lines, setLines] = useState(poem ? poem.lines : ["", "", ""])
+  const poemStatus = useSelector(state => state.poems.status)
+  const error = useSelector(state => state.poems.error)
+
+  const onTitleChanged = e => setTitle(e.target.value)
+  
+
   useEffect(() => {
-    if (poemStatus === 'idle' && fetchActive) {
-      console.log(`fetching the active poem`)
-      dispatch(fetchActivePoem()).then((poem) => { console.log(`poem: ${JSON.stringify(poem)}`); setLines(poem.payload.lines); setTitle(poem.payload.title) } )
+    if (poemStatus === 'idle' && fetchActivePoem) {
+      dispatch(fetchActivePoem())
     } else if (poemStatus === 'idle') {
-      dispatch(fetchPoemById(poemId)).then((poem) => { console.log(`poem: ${JSON.stringify(poem)}`); setLines(poem.payload.lines); setTitle(poem.payload.title) })
+      useSelector(selectPoemById(poemId))
     }
-  })
+  }, [poemStatus, dispatch])
 
   let content
+
+  
 
   const onSaveAndCreatePoemClicked = async () => {
     if (canSave) {
@@ -179,21 +169,20 @@ export const Poem = ({ match=null }) => {
   }
 
   if (poemStatus === 'loading') {
-
     content = <div className="loader">Loading</div>
-
   } else if (poemStatus === 'succeeded') {
-
-    syllableLimits = poem && poem.syllableLimits ? poem.syllableLimits : syllableLimits
-    placeholders = poem && poem.placeholders ? poem.placeholders : placeholders
-    id = poem && poem.id ? poem.id : id
-    reactions = poem && poem.reactions ? poem.reactions : reactions
-    date = poem && poem.date ? poem.date :  date
+    syllableLimits = poem.syllableLimits ? poem.syllableLimits : syllableLimits
+    placeholders = poem.placeholders ? poem.placeholders : placeholders
+    id = poem.id ? poem.id : id
+    reactions = poem.reactions ? poem.reactions : reactions
+    date = poem.date ? poem.date :  date
+    setTitle(poem.title ? poem.title : title)
+    setLines(poem.lines ? poem.lines : lines)
     canSave =
     [id, title, lines, userId, syllableLimits, syllableCounts, reactions, placeholders].every(Boolean) && addRequestStatus === 'idle'
 
-    // calculating the syllable counts
-    syllableCounts = poem && poem.syllableCounts ? poem.syllableCounts : syllableCounts
+      // calculating the syllable counts
+    syllableCounts = poem ? poem.syllableCounts : syllableCounts
     if (!syllableCounts.length) {
       syllableCounts = lines.map(line => {
       if (!line) { return 0; }
@@ -227,33 +216,30 @@ export const Poem = ({ match=null }) => {
               <button onClick={onSaveAndCreatePoemClicked}>Save & Create New</button>
               <button onClick={onResetPoemClicked}>Reset</button>
             </div>
-          <PoemAuthor userId={poem ? poem.user : null} />
-          <TimeNow timestamp={poem ? poem.date : ''} />
+          <PoemAuthor userId={poem.user} />
+          <TimeNow timestamp={poem.date} />
           <ReactionButtons poem={poem}/>
             <div className="lines">
-              {lines ? lines.map((line, lineNum) => 
+              {lines.map((line, lineNum) => 
                 <span key={`line_${lineNum}`} className="line">
                 <textarea 
                   key={lineNum} 
                   value={line} 
                   onChange={(e) => handleLineChange(e, lineNum) }
                   onClick={(e) => handlePoemClick(e, lineNum) }
-                  placeholder={placeholders ? placeholders[lineNum] : ""}
+                  placeholder={placeholders[lineNum]}
                 />
                 <h4 key={`counter_${lineNum}`} className="counter"> {syllableCounts[lineNum]} / {syllableLimits[lineNum]}</h4>
                 </span>
-              ) : null}
+              )}
               <hr className="divider"/>
             </div>
           </div> 
           <CurrentWord/>
         </div>
       </React.Fragment>
-
   } else if (poemStatus === 'failed') {
-
     content = <div>{error}</div>
-
   }
 
   return (
@@ -261,6 +247,57 @@ export const Poem = ({ match=null }) => {
       { content }
     </React.Fragment>
   )
+
+  /*
+  
+  if (!poem) {
+    console.log(`no poem`)
+    return <React.Fragment></React.Fragment>
+  } 
+
+  
+  //let poems = useSelector(selectAllPoems)
+  let poemStatus = useSelector(state => state.poems.status)
+  let error = useSelector(state => state.poems.error)
+  let fetchActivePoem = false
+  let poemId
+  if (match) {
+    poemId = match.params.poemId
+  } else {
+    fetchActivePoem = true
+    poemId = null
+  }
+
+  const poem = useSelector(state => {
+    let found
+    if (!poemId) {
+      let found
+      console.log(`state: ${JSON.stringify(state)}`)
+      if (state.poems.activePoemId) {
+        found = state.poems.poems.find(poem => poem.id === state.poems.activePoemId)
+      } else {
+        console.log(`finding first available poem`)
+        found = state.poems.poems.filter(poem => true)
+        if (found.length) {
+          found = found[0]
+        } else {
+          found = null
+        } 
+      }
+      console.log(`found: ${found}`)
+      
+      return found
+    }
+    
+    return state.poems.poems.find(poem => poem.id === poemId)
+  })
+
+  console.log(`poem: ${JSON.stringify(poem)}`)
+
+  let content 
+  */
+
+  
 
 }
 

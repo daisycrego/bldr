@@ -56,6 +56,7 @@ router.post('/map', jsonParser, function(request, response, next) {
 router.get('/poem/:user', function(request, response, next) {
 	console.log(`running the wordAPI -> GET request, fetching a poem by USER`);
 	const user = request.params.user; 
+	
 	Poem.find({user: user}, function(err, results) {
 		if (err) { next(err); }
 		if (results) {

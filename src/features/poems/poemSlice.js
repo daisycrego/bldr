@@ -18,6 +18,7 @@ export const addPoem = createAsyncThunk(
 )
 
 export const fetchPoems = createAsyncThunk('poems/fetchPoems', async () => {
+	console.log(`fetchPoems`)
 	//let activeUser = useSelector(state => state.users.activeUser)
 
 	let activeUser
@@ -27,18 +28,47 @@ export const fetchPoems = createAsyncThunk('poems/fetchPoems', async () => {
 	}
 
 	const response = await client.get(`wordAPI/poem/${activeUser}`)
+	console.log(response)
 	return response
 })
 
 export const fetchActivePoem = createAsyncThunk('poems/fetchActivePoem', async () => {
+	console.log('fetchActivePoem')
+
 	let activeUser
 	if (!activeUser) {
 		console.log(`no active user found, defaulting to a`)
 		activeUser = "a"
 	}
+
 	const response = await client.get(`wordAPI/poem/${activeUser}`)
 	console.log(response)
-	return response.length ? response[0] : null
+
+	if (response.length) {
+		return response[0]
+	} else {
+		return {
+			activePoem: null,
+			userId: activeUser
+		}
+	}
+})
+
+export const fetchPoemById = createAsyncThunk('poems/fetchPoemById', async (poemId) => {
+	console.log('fetchPoemById')
+
+	let activeUser
+	if (!activeUser) {
+		console.log(`no active user found, defaulting to a`)
+		activeUser = "a"
+	}
+
+	const poems = await client.get(`wordAPI/poem/${activeUser}`)
+	if (poems.length) {
+		return poems.find(poem => poem.id === poemId)
+	} else {
+		return null
+	}
 })
 
 const poemSlice = createSlice({
@@ -115,16 +145,24 @@ const poemSlice = createSlice({
 			state.error = action.error.message
 		},
 		[addPoem.fulfilled]: (state, action) => {
-			console.log(`action.payload: ${JSON.stringify(action.payload)}`)
 			var removeIndex = state.poems.map(item => item.id).indexOf(action.payload.id);
 			~removeIndex && state.poems.splice(removeIndex, 1)
 			//state.poems = state.poems.filter(poem => poem.id !== action.payload.id)
 			state.poems.push(action.payload)
-			console.log(`addedPoem fulfilled: ${JSON.stringify(state.poems)}`)
+			state.activePoem = action.payload
 		},
 		[fetchActivePoem.fulfilled]: (state, action) => {
+			if (!action.payload) {
+				addPoem(action.payload)
+			} else {
+				state.activePoem = action.payload
+				state.status = 'succeeded'
+			}
+			
+		},
+		[fetchPoemById.fulfilled]: (state, action) => {
 			state.activePoem = action.payload
-			console.log(`fetchActivePoem fulfilled: ${JSON.stringify(state.activePoem)}`)
+			state.status = 'succeeded'
 		}
 	}
 })
@@ -139,7 +177,6 @@ export const selectPoemById = (state, poemId) => {
 	return state.poems.poems.find(poem => poem.id === poemId)
 }
 
-// placeholder for more active poem logic later on
 export const selectActivePoem = (state) => {
 	return state.poems.activePoem
 }
