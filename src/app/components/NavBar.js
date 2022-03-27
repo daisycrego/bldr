@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Button from '@mui/material/Button';
 
 const NavBar = () => {
     const userName = '🌎';
@@ -16,9 +17,9 @@ const NavBar = () => {
             {buttons.map((item, i) => {
                 return (
                     <Link to={item.url}>
-                        <button type='button' key={i}>
+                        <Button type='button' key={i}>
                             {item.text}
-                        </button>
+                        </Button>
                     </Link>
                 );
             })}

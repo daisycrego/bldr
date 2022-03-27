@@ -1,10 +1,11 @@
 import React from 'react';
+import Button from '@mui/material/Button';
 
 const Button = (props) => {
     return (
-        <button onClick={props.handleClick} className={props.buttonStyle}>
+        <Button onClick={props.handleClick} className={props.buttonStyle}>
             {props.value}
-        </button>
+        </Button>
     );
 };
 

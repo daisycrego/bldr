@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import MiniPoem from './MiniPoem';
+import Button from '@mui/material/Button';
 
 const History = (props) => {
     if (!props.history || !props.history.length) {
@@ -23,7 +24,7 @@ const History = (props) => {
                         return (
                             <span key={index}>
                                 <Fragment>
-                                    <button
+                                    <Button
                                         disabled={isCurrentPoem}
                                         className='poemHistoryButton'
                                         key={index}
@@ -49,7 +50,7 @@ const History = (props) => {
                                                 *<sub>active poem</sub>
                                             </span>
                                         ) : null}
-                                    </button>
+                                    </Button>
                                 </Fragment>
                             </span>
                         );

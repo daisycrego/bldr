@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchWord } from '../../features/words/wordSlice';
 
 import TextareaAutosize from 'react-textarea-autosize';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 
 export const CurrentWord = () => {
     const displaySyllableUpdate = false,
@@ -34,20 +36,18 @@ export const CurrentWord = () => {
                         <div className='loader'>Loading</div>
                     ) : (
                         <React.Fragment>
-                            <TextareaAutosize
+                            <TextField
                                 className='currentWordSyllableCount'
                                 value={syllableCount}
                             />
 
-                            <textarea
-                                className='currentWordSyllableText'
-                                disabled
-                                value={` syllable${
+                            <span className='currentWordSyllableText'>
+                                {` syllable${
                                     syllableCount > 1 || syllableCount === 0
                                         ? 's'
                                         : ''
                                 }`}
-                            />
+                            </span>
                         </React.Fragment>
                     )}
                     {loadingStatus === 'failed' ? <div>{error}</div> : null}
@@ -55,15 +55,17 @@ export const CurrentWord = () => {
 
                 {displaySyllableUpdate ? (
                     <React.Fragment>
-                        <button value='Update syllable count' />
-                        <button value='Cancel' />
+                        <Button value='Update syllable count' />
+                        <Button value='Cancel' />
                     </React.Fragment>
                 ) : null}
 
                 {loadingStatus === 'loading' ? (
                     <div className='loader'>Loading</div>
                 ) : (
-                    <TextareaAutosize
+                    <TextField
+                        multiline
+                        maxRows='4'
                         className='currentDefinition'
                         value={currentWord ? currentWord.definition : ''}
                     />
@@ -71,13 +73,13 @@ export const CurrentWord = () => {
 
                 {displayDefinitionUpdate ? (
                     <React.Fragment>
-                        <button value='Update definition' />
-                        <button value='Cancel' />
+                        <Button value='Update definition' />
+                        <Button value='Cancel' />
                     </React.Fragment>
                 ) : null}
 
                 {displayWordResetButton ? (
-                    <button value={`Reset syllable count & definition`} />
+                    <Button value={`Reset syllable count & definition`} />
                 ) : null}
             </div>
         </React.Fragment>

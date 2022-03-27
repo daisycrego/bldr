@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { reactionAdded } from './poemSlice';
+import Button from '@mui/material/Button';
 
 const reactionEmoji = {
     1: '🥶',
@@ -21,7 +22,7 @@ export const ReactionButtons = ({ poem }) => {
         ([name, emoji]) => {
             const buttonContent = [emoji, <br />, poem.reactions[name]];
             return (
-                <button
+                <Button
                     key={name}
                     type='button'
                     className='muted-button reaction-button'
@@ -32,7 +33,7 @@ export const ReactionButtons = ({ poem }) => {
                     }
                 >
                     {buttonContent}
-                </button>
+                </Button>
             );
         }
     );

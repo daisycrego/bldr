@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import TextField from '@mui/material/TextField';
 
 const Line = (props) => {
     const lineRef = useRef(null);
@@ -10,7 +11,7 @@ const Line = (props) => {
 
     return (
         <span className={`line ${props.lineValid ? 'valid' : 'invalid'}`}>
-            <textarea
+            <TextField
                 ref={lineRef}
                 key={props.index}
                 contentEditable='true'

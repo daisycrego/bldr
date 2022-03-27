@@ -1,4 +1,5 @@
 import React from 'react';
+import TextField from '@mui/material/TextField';
 
 const Title = (props) => {
     return (
@@ -6,7 +7,7 @@ const Title = (props) => {
             <span>
                 <span className={'underline'}>title</span>:
             </span>
-            <textarea
+            <TextField
                 className={'title'}
                 value={props.title}
                 onChange={(e) =>

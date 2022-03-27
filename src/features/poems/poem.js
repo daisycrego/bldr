@@ -14,6 +14,8 @@ import { PoemAuthor } from './PoemAuthor';
 import { TimeNow } from './TimeNow';
 import { ReactionButtons } from './ReactionButtons';
 import { unwrapResult } from '@reduxjs/toolkit';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 
 export const Poem = ({ match = null }) => {
     const dispatch = useDispatch();
@@ -276,7 +278,7 @@ export const Poem = ({ match = null }) => {
                                 <span>
                                     <span className={'underline'}>title</span>:
                                 </span>
-                                <textarea
+                                <TextField
                                     className='title'
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
@@ -284,11 +286,11 @@ export const Poem = ({ match = null }) => {
                             </div>
 
                             <h2 title={title} onChange={onTitleChanged} />
-                            <button onClick={onSavePoemClicked}>Save</button>
-                            <button onClick={onSaveAndCreatePoemClicked}>
+                            <Button onClick={onSavePoemClicked}>Save</Button>
+                            <Button onClick={onSaveAndCreatePoemClicked}>
                                 Save & Create New
-                            </button>
-                            <button onClick={onResetPoemClicked}>Reset</button>
+                            </Button>
+                            <Button onClick={onResetPoemClicked}>Reset</Button>
                         </div>
                         <PoemAuthor userId={poem ? poem.user : null} />
                         <TimeNow timestamp={poem ? poem.date : ''} />
@@ -300,7 +302,7 @@ export const Poem = ({ match = null }) => {
                                           key={`line_${lineNum}`}
                                           className='line'
                                       >
-                                          <textarea
+                                          <TextField
                                               key={lineNum}
                                               value={line}
                                               onChange={(e) =>
