@@ -14,7 +14,8 @@ import { PoemAuthor } from './PoemAuthor';
 import { TimeNow } from './TimeNow';
 import { ReactionButtons } from './ReactionButtons';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { Box, Button, Card, CardContent, TextField } from '@mui/material';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 
 export const Poem = ({ match = null }) => {
     const dispatch = useDispatch();
@@ -270,88 +271,68 @@ export const Poem = ({ match = null }) => {
 
         content = (
             <React.Fragment>
-                <Card variant='outlined'>
-                    <CardContent>
-                        <div className='poem'>
-                            <div className='row'>
-                                <div className='title'>
-                                    <span>
-                                        <span className={'underline'}>
-                                            title
-                                        </span>
-                                        :
-                                    </span>
-                                    <TextField
-                                        className='title'
-                                        value={title}
-                                        onChange={(e) =>
-                                            setTitle(e.target.value)
-                                        }
-                                    />
-                                </div>
+                <div className='poemBuilder row'>
+                    <div className='poem'>
+                        <div className='row'>
+                            <div className='title'>
+                                <span>
+                                    <span className={'underline'}>title</span>:
+                                </span>
+                                <TextField
+                                    className='title'
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                />
+                            </div>
 
-                                <h2 title={title} onChange={onTitleChanged} />
-                                <Button onClick={onSavePoemClicked}>
-                                    Save
-                                </Button>
-                                <Button onClick={onSaveAndCreatePoemClicked}>
-                                    Save & Create New
-                                </Button>
-                                <Button onClick={onResetPoemClicked}>
-                                    Reset
-                                </Button>
-                            </div>
-                            <PoemAuthor userId={poem ? poem.user : null} />
-                            <TimeNow timestamp={poem ? poem.date : ''} />
-                            <ReactionButtons poem={poem} />
-                            <div className='lines'>
-                                {lines
-                                    ? lines.map((line, lineNum) => (
-                                          <span
-                                              key={`line_${lineNum}`}
-                                              className='line'
-                                          >
-                                              <TextField
-                                                  key={lineNum}
-                                                  value={line}
-                                                  onChange={(e) =>
-                                                      handleLineChange(
-                                                          e,
-                                                          lineNum
-                                                      )
-                                                  }
-                                                  onClick={(e) =>
-                                                      handlePoemClick(
-                                                          e,
-                                                          lineNum
-                                                      )
-                                                  }
-                                                  placeholder={
-                                                      placeholders
-                                                          ? placeholders[
-                                                                lineNum
-                                                            ]
-                                                          : ''
-                                                  }
-                                              />
-                                              <h4
-                                                  key={`counter_${lineNum}`}
-                                                  className='counter'
-                                              >
-                                                  {' '}
-                                                  {
-                                                      syllableCounts[lineNum]
-                                                  } / {syllableLimits[lineNum]}
-                                              </h4>
-                                          </span>
-                                      ))
-                                    : null}
-                                <hr className='divider' />
-                            </div>
+                            <h2 title={title} onChange={onTitleChanged} />
+                            <Button onClick={onSavePoemClicked}>Save</Button>
+                            <Button onClick={onSaveAndCreatePoemClicked}>
+                                Save & Create New
+                            </Button>
+                            <Button onClick={onResetPoemClicked}>Reset</Button>
                         </div>
-                    </CardContent>
-                </Card>
-                <CurrentWord />
+                        <PoemAuthor userId={poem ? poem.user : null} />
+                        <TimeNow timestamp={poem ? poem.date : ''} />
+                        <ReactionButtons poem={poem} />
+                        <div className='lines'>
+                            {lines
+                                ? lines.map((line, lineNum) => (
+                                      <span
+                                          key={`line_${lineNum}`}
+                                          className='line'
+                                      >
+                                          <TextField
+                                              key={lineNum}
+                                              value={line}
+                                              onChange={(e) =>
+                                                  handleLineChange(e, lineNum)
+                                              }
+                                              onClick={(e) =>
+                                                  handlePoemClick(e, lineNum)
+                                              }
+                                              placeholder={
+                                                  placeholders
+                                                      ? placeholders[lineNum]
+                                                      : ''
+                                              }
+                                          />
+                                          <h4
+                                              key={`counter_${lineNum}`}
+                                              className='counter'
+                                          >
+                                              {' '}
+                                              {syllableCounts[lineNum]} /{' '}
+                                              {syllableLimits[lineNum]}
+                                          </h4>
+                                      </span>
+                                  ))
+                                : null}
+                            <hr className='divider' />
+                        </div>
+                    </div>
+                    <CurrentWord />
+                </div>
             </React.Fragment>
         );
     } else if (poemStatus === 'failed') {
