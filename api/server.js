@@ -30,18 +30,18 @@ app.use(cors());
 //app.use(express.json());
 //app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '..', 'build')));
-app.use(function (req, res, next) { setTimeout(next, 1000) }); // INTENTIONAL LATENCY :) 
+app.use(function(req,res,next){setTimeout(next,1000)}); // INTENTIONAL LATENCY :) 
 app.use('/wordAPI', wordAPIrouter);
 
 app.use((req, res, next) => {
 	res.sendFile(path.join(__dirname, "..", "build", "index.html"));
 });
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
 	next(createError(404));
 });
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
 	// set locals, only providing error in development
 	res.locals.message = err.message;
 	res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -51,7 +51,7 @@ app.use(function (err, req, res, next) {
 	res.send(`error`);
 });
 
-app.listen(process.env.PORT || 3000, () => {
+app.listen(process.env.PORT || 5000, () => {
 	console.log('server listening');
 });
 
