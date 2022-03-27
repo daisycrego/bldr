@@ -8,8 +8,8 @@ import {
     Route,
     Redirect,
 } from 'react-router-dom';
-import { PoemList } from '../features/poems/poemList';
-import { Poem } from '../features/poems/poem';
+import { PoemList } from '../../features/poems/poemList';
+import { Poem } from '../../features/poems/poem';
 import { FeaturedWorldPoem } from './FeaturedWorldPoem';
 
 const user_id = 'a';

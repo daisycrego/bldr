@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { poemAdded, poemUpdated, poemReset } from '../features/poems/poemSlice';
+import {
+    poemAdded,
+    poemUpdated,
+    poemReset,
+} from '../../features/poems/poemSlice';
 import { CurrentWord } from './CurrentWord';
 
 export const PoemBuilder = ({ match }) => {

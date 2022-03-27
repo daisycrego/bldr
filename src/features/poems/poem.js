@@ -9,7 +9,7 @@ import {
     fetchActivePoem,
     fetchPoemById,
 } from './poemSlice';
-import { CurrentWord } from '../../app/CurrentWord';
+import { CurrentWord } from '../../app/components/CurrentWord';
 import { PoemAuthor } from './PoemAuthor';
 import { TimeNow } from './TimeNow';
 import { ReactionButtons } from './ReactionButtons';
@@ -20,6 +20,27 @@ export const Poem = ({ match = null }) => {
     const history = useHistory();
 
     let poem = useSelector((state) => state.poems.activePoem);
+    if (!poem) {
+        poem = {
+            user: 'a',
+            title: 'Title here...',
+            lines: [
+                'haikues are easy',
+                "but sometimes they don't make sense",
+                'refrigerator',
+            ],
+            lineCount: 3,
+            valid: true,
+            syllableCounts: [5, 7, 5],
+            syllableLimits: [5, 7, 5],
+            date: '10/10/2022',
+            reactions: [0, 0, 0, 0, 0],
+            archived: false,
+        };
+    }
+
+    console.log('Poem, poem:', poem);
+
     const poems = useSelector((state) => state.poems.poems);
     const poemStatus = useSelector((state) => state.poems.activePoemStatus);
     const error = useSelector((state) => state.poems.error);

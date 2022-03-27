@@ -25,7 +25,31 @@ export const fetchPoems = createAsyncThunk('poems/fetchPoems', async () => {
     }
 
     const response = await client.get(`wordAPI/poem/${activeUser}`);
-    return response;
+    if (response.length) {
+        return response;
+    } else {
+        return [
+            {
+                activePoem: {
+                    user: activeUser,
+                    title: 'Title here...',
+                    lines: [
+                        'haikues are easy',
+                        "but sometimes they don't make sense",
+                        'refrigerator',
+                    ],
+                    lineCount: 3,
+                    valid: true,
+                    syllableCounts: [5, 7, 5],
+                    syllableLimits: [5, 7, 5],
+                    date: '10/10/2022',
+                    reactions: [0, 0, 0, 0, 0],
+                    archived: false,
+                },
+                userId: activeUser,
+            },
+        ];
+    }
 });
 
 export const fetchActivePoem = createAsyncThunk(
@@ -41,8 +65,25 @@ export const fetchActivePoem = createAsyncThunk(
             return response[0];
         } else {
             return {
-                activePoem: null,
-                userId: activeUser,
+                user: activeUser,
+                title: 'Title here...',
+                lines: [
+                    'haikus are easy',
+                    "but sometimes they don't make sense",
+                    'refrigerator',
+                ],
+                linesEdit: [
+                    'haikus are easy',
+                    "but sometimes they don't make sense",
+                    'refrigerator',
+                ],
+                lineCount: 3,
+                valid: true,
+                syllableCounts: [5, 7, 5],
+                syllableLimits: [5, 7, 5],
+                date: null,
+                reactions: [0, 0, 0, 0, 0],
+                archived: false,
             };
         }
     }

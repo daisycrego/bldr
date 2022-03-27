@@ -1,5 +1,5 @@
 import React from 'react';
-import relax from '../relax.gif';
+import relax from '../../relax.gif';
 
 const SelfDestruct = () => {
     return (

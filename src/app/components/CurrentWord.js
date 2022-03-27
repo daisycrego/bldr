@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchWord } from '../features/words/wordSlice';
+import { fetchWord } from '../../features/words/wordSlice';
 
 import TextareaAutosize from 'react-textarea-autosize';
 
