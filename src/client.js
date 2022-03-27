@@ -1,44 +1,44 @@
-import { url_base } from './urls'
-const url = require('url')
+import { url_base } from './urls';
+const url = require('url');
 
 // A tiny wrapper around fetch(), borrowed from
 // https://kentcdodds.com/blog/replace-axios-with-a-simple-custom-fetch-wrapper
 
 export async function client(endpoint, { body, ...customConfig } = {}) {
-  endpoint = url.resolve(url_base, endpoint)
+    endpoint = url.resolve(url_base, endpoint);
 
-  const headers = { 'Content-Type': 'application/json' }
+    const headers = { 'Content-Type': 'application/json' };
 
-  const config = {
-    method: body ? 'POST' : 'GET',
-    ...customConfig,
-    headers: {
-      ...headers,
-      ...customConfig.headers,
-    },
-  }
+    const config = {
+        method: body ? 'POST' : 'GET',
+        ...customConfig,
+        headers: {
+            ...headers,
+            ...customConfig.headers,
+        },
+    };
 
-  if (body) {
-    config.body = JSON.stringify(body)
-  }
-
-  let data
-  try {
-    const response = await window.fetch(endpoint, config)
-    data = await response.json()
-    if (response.ok) {
-      return data
+    if (body) {
+        config.body = JSON.stringify(body);
     }
-    throw new Error(response.statusText)
-  } catch (err) {
-    return Promise.reject(err.message ? err.message : data)
-  }
+
+    let data;
+    try {
+        const response = await window.fetch(endpoint, config);
+        data = await response.json();
+        if (response.ok) {
+            return data;
+        }
+        throw new Error(response.statusText);
+    } catch (err) {
+        return Promise.reject(err.message ? err.message : data);
+    }
 }
 
 client.get = function (endpoint, customConfig = {}) {
-  return client(endpoint, { ...customConfig, method: 'GET' })
-}
+    return client(endpoint, { ...customConfig, method: 'GET' });
+};
 
 client.post = function (endpoint, body, customConfig = {}) {
-  return client(endpoint, { ...customConfig, body })
-}
+    return client(endpoint, { ...customConfig, body });
+};

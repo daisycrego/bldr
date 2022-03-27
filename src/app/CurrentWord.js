@@ -1,93 +1,85 @@
-import React, { useState, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
-import { fetchWord } from '../features/words/wordSlice'
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchWord } from '../features/words/wordSlice';
 
-import TextareaAutosize from 'react-textarea-autosize'
+import TextareaAutosize from 'react-textarea-autosize';
 
-export const CurrentWord = () => {	
-	const 	displaySyllableUpdate = false, 
-			displayDefinitionUpdate = false, 
-			displayWordResetButton = false; 
-	
-	const dispatch = useDispatch()
+export const CurrentWord = () => {
+    const displaySyllableUpdate = false,
+        displayDefinitionUpdate = false,
+        displayWordResetButton = false;
 
-	const currentWord = useSelector(state => state.words.currentWord)
-	const loadingStatus = useSelector(state => state.words.status)
-	const error = useSelector(state => state.words.error)
+    const dispatch = useDispatch();
 
-	if (loadingStatus === 'idle') {
-		if (currentWord["word"]) { 
-			dispatch(fetchWord(currentWord["word"]))
-		}
-	}
-	const syllableCount = currentWord ? currentWord.syllables : 0;
+    const currentWord = useSelector((state) => state.words.currentWord);
+    const loadingStatus = useSelector((state) => state.words.status);
+    const error = useSelector((state) => state.words.error);
 
-	return (
-		<React.Fragment>
-			<div className="currentWord">
-				<h1 className="currentWordDisplay">
-				{currentWord ? currentWord["word"] : ''}
-				</h1>
-			
-			
-			<span className="currentWordSyllables">
-				{(loadingStatus === 'loading') ?
-					<div className="loader">Loading</div>
-				 :
-				 	<React.Fragment>
-				 	<TextareaAutosize 
-					className="currentWordSyllableCount" 
-					value={syllableCount}/>
+    if (loadingStatus === 'idle') {
+        if (currentWord['word']) {
+            dispatch(fetchWord(currentWord['word']));
+        }
+    }
+    const syllableCount = currentWord ? currentWord.syllables : 0;
 
-					<textarea 
-					className="currentWordSyllableText" 
-					disabled 
-					value={` syllable${(syllableCount > 1 || syllableCount === 0) ? "s" : ""}`}
-					/>
-					</React.Fragment>
-			 	}
-			 	{(loadingStatus === 'failed') ? 
+    return (
+        <React.Fragment>
+            <div className='currentWord'>
+                <h1 className='currentWordDisplay'>
+                    {currentWord ? currentWord['word'] : ''}
+                </h1>
 
-			 		<div>{error}</div> : null
+                <span className='currentWordSyllables'>
+                    {loadingStatus === 'loading' ? (
+                        <div className='loader'>Loading</div>
+                    ) : (
+                        <React.Fragment>
+                            <TextareaAutosize
+                                className='currentWordSyllableCount'
+                                value={syllableCount}
+                            />
 
-			 	}
-			</span>
-			
-			{displaySyllableUpdate ? 
-				<React.Fragment>
-					<button value="Update syllable count"/>
-					<button value="Cancel"/>
-				</React.Fragment>
-			: null}
-			
+                            <textarea
+                                className='currentWordSyllableText'
+                                disabled
+                                value={` syllable${
+                                    syllableCount > 1 || syllableCount === 0
+                                        ? 's'
+                                        : ''
+                                }`}
+                            />
+                        </React.Fragment>
+                    )}
+                    {loadingStatus === 'failed' ? <div>{error}</div> : null}
+                </span>
 
-			{(loadingStatus === 'loading') ?
-				<div className="loader">Loading</div>
-				:
-				<TextareaAutosize 
-				className="currentDefinition" 
-				value={currentWord ? currentWord.definition : ''}
-				/> 
+                {displaySyllableUpdate ? (
+                    <React.Fragment>
+                        <button value='Update syllable count' />
+                        <button value='Cancel' />
+                    </React.Fragment>
+                ) : null}
 
-			}
-				
-			{displayDefinitionUpdate ? 
-				<React.Fragment>
-					<button value="Update definition"/>
-					<button value="Cancel"/>
-				</React.Fragment>
-			: null}
-			
-			{displayWordResetButton ? 
-			<button 
-				value={`Reset syllable count & definition`}
-			/>
-			: null}
+                {loadingStatus === 'loading' ? (
+                    <div className='loader'>Loading</div>
+                ) : (
+                    <TextareaAutosize
+                        className='currentDefinition'
+                        value={currentWord ? currentWord.definition : ''}
+                    />
+                )}
 
+                {displayDefinitionUpdate ? (
+                    <React.Fragment>
+                        <button value='Update definition' />
+                        <button value='Cancel' />
+                    </React.Fragment>
+                ) : null}
 
-			</div>
-			
-		</React.Fragment>
-	);
+                {displayWordResetButton ? (
+                    <button value={`Reset syllable count & definition`} />
+                ) : null}
+            </div>
+        </React.Fragment>
+    );
 };
