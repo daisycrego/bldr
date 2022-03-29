@@ -31,6 +31,9 @@ app.use(cors());
 //app.use(express.json());
 //app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '..', 'build')));
+app.listen(process.env.PORT || 5000, () => {
+    console.log('server listening');
+});
 app.use(function (req, res, next) {
     setTimeout(next, 1000);
 }); // INTENTIONAL LATENCY :)
@@ -52,10 +55,6 @@ app.use(function (err, req, res, next) {
     // render the error page
     res.status(err.status || 500);
     res.send(`error`);
-});
-
-app.listen(process.env.PORT || 5000, () => {
-    console.log('server listening');
 });
 
 module.exports = app;
