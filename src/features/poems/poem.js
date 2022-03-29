@@ -40,8 +40,6 @@ export const Poem = ({ match = null }) => {
         };
     }
 
-    console.log('Poem, poem:', poem);
-
     const poems = useSelector((state) => state.poems.poems);
     const poemStatus = useSelector((state) => state.poems.activePoemStatus);
     const error = useSelector((state) => state.poems.error);

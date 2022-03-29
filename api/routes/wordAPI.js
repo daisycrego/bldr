@@ -27,28 +27,23 @@ fetchWordData(word) {
 */
 
 router.get('/map/:user', function (request, response, next) {
-    console.log(`GET /map/:user, user=${request.params.user}`);
     const user = request.params.user;
     WordMap.find({ user: user }, function (err, results) {
         if (err) {
             next(err);
         }
         if (results) {
-            console.log(`GET /map/:user, returning ${results}`);
             return response.send(results);
         } else {
-            console.log(`GET /map/:user, returning null`);
             return response.send(null);
         }
     });
 });
 
 router.post('/map', jsonParser, function (request, response, next) {
-    console.log(`POST /map, request.body=${request.body}`);
     const map = request.body.map;
     const user = request.body.user;
     if (!map || !user) {
-        console.log('Map not saved');
         return response.send('Map not saved.');
     }
 
@@ -60,14 +55,12 @@ router.post('/map', jsonParser, function (request, response, next) {
             if (error) {
                 next(error);
             }
-            console.log('Successfully saved');
             return response.send('Successfully saved.');
         }
     );
 });
 
 router.get('/poem/:user', function (request, response, next) {
-    console.log(`GET /poem/:user, user=${request.params.user}`);
     const user = request.params.user;
 
     Poem.find({ user: user }, function (err, results) {
@@ -75,20 +68,16 @@ router.get('/poem/:user', function (request, response, next) {
             next(err);
         }
         if (results) {
-            console.log('GET /poem/:user, results=', results);
             return response.send(results);
         } else {
-            console.log('GET /poem/:user, results=', null);
             return response.send(null);
         }
     });
 });
 
 router.post('/poem', jsonParser, function (request, response, next) {
-    console.log('POST /poem, request.body', request.body);
     const poem = request.body;
     if (!poem) {
-        console.log('No poem found');
         return response.send('No poem found');
     }
     Poem.updateOne(
@@ -99,14 +88,12 @@ router.post('/poem', jsonParser, function (request, response, next) {
             if (error) {
                 next(err);
             }
-            console.log('Poem inserted/updated successfully');
             return response.send(poem);
         }
     );
 });
 
 router.post('/update', function (request, response, next) {
-    console.log('POST /update (word), request.body=', request.body);
     var wordQuery = { word: request.params.word };
     var newValues = {
         syllables: request.params.syllables,
@@ -114,18 +101,15 @@ router.post('/update', function (request, response, next) {
     };
     Word.updateOne(wordQuery, newValues, function (err, results) {
         if (err) {
-            console.log('Error updating word');
             next(err);
         }
         if (results) {
-            console.log('Updated word successfully');
             return response.send(results);
         }
     });
 });
 
 router.get('/:word', function (request, response, next) {
-    console.log('GET /word, request.body=', request.body);
     // check if the word is stored already in the word history cache - if it is, don't bother looking it up
     // create a word object for the word and assign it to the word history cache - for now, there is
     // just one user, but in the future each user will have their own history cache and there
@@ -140,7 +124,6 @@ router.get('/:word', function (request, response, next) {
         }
         if (results) {
             // Word already exists, return the word that already exists.
-            console.log('Word exists... returning=', results);
             return response.send(results);
         } else {
             // https://www.datamuse.com/api/
@@ -172,12 +155,10 @@ router.get('/:word', function (request, response, next) {
                         if (err) {
                             return next(err);
                         }
-                        console.log('word retrieved... results=', word);
                         return response.send(word);
                     });
                 })
                 .catch((err) => {
-                    console.log('error retrieving word');
                     return next(err);
                 });
         }
@@ -185,9 +166,7 @@ router.get('/:word', function (request, response, next) {
 });
 
 router.get('/', function (req, res, next) {
-    console.log('GET / (word)');
     Word.find({}, function (err, words) {
-        console.log('returning words=', words);
         return res.send(words);
     });
 });

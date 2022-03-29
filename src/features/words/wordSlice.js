@@ -15,19 +15,12 @@ const initialState = {
 
 export const fetchWord = createAsyncThunk(
     'currentWord/fetchWord',
-    async (word) => {
-        const response = await client.get(`wordAPI/${word}`);
-        return response;
-    }
+    async (word) => await client.get(`wordAPI/${word}`)
 );
 
 export const fetchWordMap = createAsyncThunk(
     'currentWord/fetchWordMap',
-    async (userId) => {
-        const response = await client.get(`map/${userId}`);
-        console.log(`fetchMap returned this: ${JSON.stringify(response)}`);
-        return response;
-    }
+    async (userId) => await client.get(`map/${userId}`)
 );
 
 const wordSlice = createSlice({
