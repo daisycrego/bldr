@@ -2,8 +2,8 @@ body {
 	font-family: Arial, Verdana, sans-serif;
 	width: 90%;
 	margin: 0 auto;
-	color: #031e4a; /* navy blue */
-	background-color: #D2B48C; /* tan */
+	color: #D2B48C; /* tan */;
+	background-color: #19262c;
 	font-weight: bold;
 	font-size: 200%;
 }
@@ -322,4 +322,5 @@ h4.counter {
 
 .App {
 	padding-top:200px;
+	display: flex; 
 }

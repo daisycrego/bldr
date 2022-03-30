@@ -268,7 +268,7 @@ export const Poem = ({ match = null }) => {
 
         content = (
             <React.Fragment>
-                <Card variant='outlined'>
+                <Card style={{ backgroundColor: '#3C6271' }} variant='outlined'>
                     <CardContent>
                         <div className='poem'>
                             <div className='row'>
