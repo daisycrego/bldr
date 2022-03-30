@@ -22,7 +22,10 @@ export const CurrentWord = () => {
     const syllableCount = currentWord ? currentWord.syllables : 0;
 
     return (
-        <Card variant='outlined' style={{ backgroundColor: '#204B5C' }}>
+        <Card
+            variant='outlined'
+            style={{ backgroundColor: '#204B5C', width: '600px' }}
+        >
             <CardContent>
                 <div className='currentWord'>
                     <h1 className='currentWordDisplay'>
