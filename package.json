@@ -1,5 +1,6 @@
 {
   "name": "bldr",
+  "homepage": "https://daisycrego.github.io/bldr/",
   "version": "0.1.0",
   "private": true,
   "proxy": "http://localhost:5000",
@@ -15,6 +16,7 @@
     "cors": "^2.8.5",
     "date-fns": "^2.16.1",
     "ejs": "^3.1.3",
+    "gh-pages": "^3.2.3",
     "mongoose": "^5.10.0",
     "mongoose-sequence": "^5.2.2",
     "node-fetch": "^2.6.0",
@@ -28,9 +30,9 @@
     "redux": "^4.0.5"
   },
   "scripts": {
-    "start-client": "react-scripts start",
-    "start": "export REACT_APP_ENVIRONMENT=production && npm run build && (cd api && npm start)",
-    "dev": "export REACT_APP_ENVIRONMENT=development && npm run build && (cd api && npm start)",
+    "start": "react-scripts start",
+    "dev": "react-scripts start",
+    "deploy": "gh-pages -b master -d build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
