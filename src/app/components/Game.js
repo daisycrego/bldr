@@ -3,7 +3,7 @@ import NavBar from './NavBar';
 import SelfDestruct from './SelfDestruct';
 import Help from './Help';
 import {
-    HashRouter as Router,
+    BrowserRouter as Router,
     Switch,
     Route,
     Redirect,
